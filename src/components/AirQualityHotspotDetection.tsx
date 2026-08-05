@@ -421,6 +421,8 @@ const AirQualityHotspotDetection: React.FC = () => {
   });
 
   const [cityList, setCityList] = useState<string[]>(['Mysuru', 'Bangalore', 'Delhi', 'Mumbai', 'Chennai', 'Hyderabad', 'Kolkata', 'Pune']);
+  const [searchQuery, setSearchQuery] = useState<string>(() => localStorage.getItem('pp_city') || 'Mysuru');
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [stations, setStations] = useState<Station[]>([]);
   const [loading, setLoading] = useState(false);
   const [lastUpdate, setLastUpdate] = useState(new Date());
@@ -433,6 +435,7 @@ const AirQualityHotspotDetection: React.FC = () => {
       const lng = e.detail?.lon || parseFloat(localStorage.getItem('pp_lng') || '76.6450');
 
       setSelectedCity(city);
+      setSearchQuery(city);
       setCityCenter([lat, lng]);
 
       setCityList(prev => prev.includes(city) ? prev : [city, ...prev]);
@@ -506,15 +509,21 @@ const AirQualityHotspotDetection: React.FC = () => {
 
   const handleCitySelect = (cityName: string) => {
     setSelectedCity(cityName);
+    setSearchQuery(cityName);
+    setCityList(prev => prev.includes(cityName) ? prev : [cityName, ...prev]);
+
     if (BASE_LOCATIONS[cityName]) {
       const coords = BASE_LOCATIONS[cityName];
       setCityCenter(coords);
       localStorage.setItem('pp_city', cityName);
       localStorage.setItem('pp_lat', coords[0].toString());
       localStorage.setItem('pp_lng', coords[1].toString());
+      window.dispatchEvent(new CustomEvent('pp_location_changed', { detail: { city: cityName, lat: coords[0], lon: coords[1] } }));
     } else {
-      // Geocode custom city name
-      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cityName)}&limit=1`)
+      // Geocode custom city name (e.g. Bangalore Peenya, Tokyo, etc.)
+      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cityName)}&limit=1`, {
+        headers: { 'Accept-Language': 'en-US,en' }
+      })
         .then(r => r.json())
         .then(data => {
           if (Array.isArray(data) && data.length > 0) {
@@ -524,8 +533,10 @@ const AirQualityHotspotDetection: React.FC = () => {
             localStorage.setItem('pp_city', cityName);
             localStorage.setItem('pp_lat', lat.toString());
             localStorage.setItem('pp_lng', lng.toString());
+            window.dispatchEvent(new CustomEvent('pp_location_changed', { detail: { city: cityName, lat, lon: lng } }));
           }
-        });
+        })
+        .catch(() => {});
     }
   };
 
@@ -586,15 +597,93 @@ const AirQualityHotspotDetection: React.FC = () => {
               </div>
             </div>
 
-            {/* Controls */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <select
-                value={selectedCity}
-                onChange={(e) => handleCitySelect(e.target.value)}
-                style={{ background: '#111827', border: '1px solid #1e293b', borderRadius: 8, padding: '8px 14px', color: '#f1f5f9', fontSize: 13, fontWeight: 700, outline: 'none', cursor: 'pointer' }}
-              >
-                {cityList.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
+            {/* Real-Time Location Search Input (Replaces Dropdown) */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative', minWidth: 280, flex: 1, maxWidth: 420 }}>
+              <div style={{ position: 'relative', width: '100%' }}>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    if (e.target.value.length >= 2) {
+                      setShowSuggestions(true);
+                    } else {
+                      setShowSuggestions(false);
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && searchQuery.trim()) {
+                      handleCitySelect(searchQuery.trim());
+                      setShowSuggestions(false);
+                    }
+                  }}
+                  placeholder="Search any city/location (e.g. Bangalore, Tokyo)..."
+                  style={{
+                    width: '100%',
+                    background: '#111827',
+                    border: '1px solid #1e293b',
+                    borderRadius: 24,
+                    padding: '9px 16px 9px 40px',
+                    color: '#f1f5f9',
+                    fontSize: 13,
+                    fontWeight: 600,
+                    outline: 'none',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                    transition: 'all 0.2s',
+                  }}
+                />
+                <svg
+                  width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2.5" strokeLinecap="round"
+                  style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
+                >
+                  <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+
+                {/* Suggestions Dropdown */}
+                {showSuggestions && (
+                  <div style={{
+                    position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 6,
+                    background: '#0d1529', border: '1px solid #1e293b', borderRadius: 14,
+                    overflow: 'hidden', zIndex: 100, boxShadow: '0 20px 40px rgba(0,0,0,0.6)',
+                  }}>
+                    {cityList
+                      .filter(c => c.toLowerCase().includes(searchQuery.toLowerCase()))
+                      .slice(0, 6)
+                      .map((c) => (
+                        <div
+                          key={c}
+                          onClick={() => {
+                            setSearchQuery(c);
+                            handleCitySelect(c);
+                            setShowSuggestions(false);
+                          }}
+                          style={{
+                            padding: '10px 16px', fontSize: 13, color: '#f1f5f9', fontWeight: 600,
+                            cursor: 'pointer', borderBottom: '1px solid #111827', display: 'flex', alignItems: 'center', gap: 8,
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.background = '#111827')}
+                          onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                        >
+                          <span style={{ color: '#06b6d4' }}>📍</span> {c}
+                        </div>
+                      ))}
+                    {searchQuery.trim() && (
+                      <div
+                        onClick={() => {
+                          handleCitySelect(searchQuery.trim());
+                          setShowSuggestions(false);
+                        }}
+                        style={{
+                          padding: '10px 16px', fontSize: 13, color: '#06b6d4', fontWeight: 700,
+                          cursor: 'pointer', background: 'rgba(6,182,212,0.08)', display: 'flex', alignItems: 'center', gap: 8,
+                        }}
+                      >
+                        <span>🔍</span> Search global location "{searchQuery}"
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
 
               <button
                 onClick={fetchAirQualityData}
