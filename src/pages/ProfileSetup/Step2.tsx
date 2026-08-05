@@ -1,9 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-// Define a type for the component's props for better TypeScript support
 type Step2Props = {
-  // All the state and setters are passed from the parent
   morningWalk: string; setMorningWalk: (val: string) => void;
   morningWalkTime: string; setMorningWalkTime: (val: string) => void;
   eveningWalk: string; setEveningWalk: (val: string) => void;
@@ -17,6 +15,49 @@ type Step2Props = {
   isLoading: boolean;
 };
 
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  background: '#111827',
+  border: '1px solid #1e293b',
+  borderRadius: 10,
+  padding: '12px 14px',
+  color: '#f1f5f9',
+  fontSize: 14,
+  outline: 'none',
+  fontFamily: 'Inter, sans-serif',
+  boxSizing: 'border-box',
+  marginTop: 6,
+};
+
+const labelStyle: React.CSSProperties = {
+  display: 'block',
+  fontSize: 13,
+  fontWeight: 600,
+  color: '#94a3b8',
+  marginBottom: 6,
+};
+
+const RadioOption = ({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    style={{
+      padding: '8px 16px',
+      borderRadius: 8,
+      border: selected ? '1px solid #06b6d4' : '1px solid #1e293b',
+      background: selected ? 'rgba(6,182,212,0.15)' : '#111827',
+      color: selected ? '#06b6d4' : '#94a3b8',
+      fontWeight: selected ? 700 : 500,
+      fontSize: 13,
+      cursor: 'pointer',
+      fontFamily: 'Inter, sans-serif',
+      transition: 'all 0.15s',
+    }}
+  >
+    {label}
+  </button>
+);
+
 const Step2: React.FC<Step2Props> = (props) => {
   const {
     morningWalk, setMorningWalk, morningWalkTime, setMorningWalkTime,
@@ -28,71 +69,144 @@ const Step2: React.FC<Step2Props> = (props) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: '50%' }}
+      initial={{ opacity: 0, x: 16 }}
       animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: '-50%' }}
-      transition={{ duration: 0.5, ease: "easeInOut" }}
+      exit={{ opacity: 0, x: -16 }}
+      transition={{ duration: 0.3 }}
     >
-      <h3 className="text-2xl font-bold text-gray-800">Lifestyle & Habits</h3>
-      <p className="text-gray-500 mb-6">This helps us tailor your alerts.</p>
+      <div style={{ marginBottom: 24 }}>
+        <h3 style={{ fontSize: 20, fontWeight: 800, color: '#f1f5f9', marginBottom: 4, letterSpacing: '-0.02em' }}>
+          Lifestyle & Habits
+        </h3>
+        <p style={{ fontSize: 13, color: '#64748b' }}>
+          These details train our AI engine to generate personalized health advisories.
+        </p>
+      </div>
 
-      <form onSubmit={handleSave} className="space-y-4">
-        {/* Walk Habits */}
+      <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+        {/* Morning Walk */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Do you go for a morning walk/jog?</label>
-          <div className="flex space-x-4">
-            <label className="inline-flex items-center"><input type="radio" value="Yes" checked={morningWalk === 'Yes'} onChange={() => setMorningWalk('Yes')} className="form-radio text-cyan-600" /><span className="ml-2">Yes</span></label>
-            <label className="inline-flex items-center"><input type="radio" value="No" checked={morningWalk === 'No'} onChange={() => { setMorningWalk('No'); setMorningWalkTime(''); }} className="form-radio text-cyan-600" /><span className="ml-2">No</span></label>
+          <label style={labelStyle}>Do you go for a morning walk or outdoor jog?</label>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+            <RadioOption label="Yes" selected={morningWalk === 'Yes'} onClick={() => setMorningWalk('Yes')} />
+            <RadioOption label="No" selected={morningWalk === 'No'} onClick={() => { setMorningWalk('No'); setMorningWalkTime(''); }} />
+            {morningWalk === 'Yes' && (
+              <input
+                type="time"
+                value={morningWalkTime}
+                onChange={(e) => setMorningWalkTime(e.target.value)}
+                style={{ ...inputStyle, width: 140, marginTop: 0 }}
+              />
+            )}
           </div>
-          {morningWalk === 'Yes' && <input type="time" value={morningWalkTime} onChange={(e) => setMorningWalkTime(e.target.value)} className="mt-2 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500" />}
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Do you go for an evening walk/jog?</label>
-          <div className="flex space-x-4">
-            <label className="inline-flex items-center"><input type="radio" value="Yes" checked={eveningWalk === 'Yes'} onChange={() => setEveningWalk('Yes')} className="form-radio text-cyan-600" /><span className="ml-2">Yes</span></label>
-            <label className="inline-flex items-center"><input type="radio" value="No" checked={eveningWalk === 'No'} onChange={() => { setEveningWalk('No'); setEveningWalkTime(''); }} className="form-radio text-cyan-600" /><span className="ml-2">No</span></label>
-          </div>
-          {eveningWalk === 'Yes' && <input type="time" value={eveningWalkTime} onChange={(e) => setEveningWalkTime(e.target.value)} className="mt-2 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500" />}
         </div>
 
-        {/* Other Habits */}
+        {/* Evening Walk */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Are you particularly sensitive to dust, smoke, or strong odors?</label>
-          <div className="flex space-x-4">
-            <label className="inline-flex items-center"><input type="radio" value="Yes" checked={sensitiveToDust === 'Yes'} onChange={() => setSensitiveToDust('Yes')} className="form-radio text-cyan-600" /><span className="ml-2">Yes</span></label>
-            <label className="inline-flex items-center"><input type="radio" value="No" checked={sensitiveToDust === 'No'} onChange={() => setSensitiveToDust('No')} className="form-radio text-cyan-600" /><span className="ml-2">No</span></label>
+          <label style={labelStyle}>Do you go for an evening walk or outdoor activity?</label>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+            <RadioOption label="Yes" selected={eveningWalk === 'Yes'} onClick={() => setEveningWalk('Yes')} />
+            <RadioOption label="No" selected={eveningWalk === 'No'} onClick={() => { setEveningWalk('No'); setEveningWalkTime(''); }} />
+            {eveningWalk === 'Yes' && (
+              <input
+                type="time"
+                value={eveningWalkTime}
+                onChange={(e) => setEveningWalkTime(e.target.value)}
+                style={{ ...inputStyle, width: 140, marginTop: 0 }}
+              />
+            )}
           </div>
         </div>
+
+        {/* Dust Sensitivity */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Do you use an indoor air purifier?</label>
-          <div className="flex space-x-4">
-            <label className="inline-flex items-center"><input type="radio" value="Yes" checked={indoorAirPurifier === 'Yes'} onChange={() => setIndoorAirPurifier('Yes')} className="form-radio text-cyan-600" /><span className="ml-2">Yes</span></label>
-            <label className="inline-flex items-center"><input type="radio" value="No" checked={indoorAirPurifier === 'No'} onChange={() => setIndoorAirPurifier('No')} className="form-radio text-cyan-600" /><span className="ml-2">No</span></label>
+          <label style={labelStyle}>Are you sensitive to dust, smoke, or traffic fumes?</label>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <RadioOption label="Yes" selected={sensitiveToDust === 'Yes'} onClick={() => setSensitiveToDust('Yes')} />
+            <RadioOption label="No" selected={sensitiveToDust === 'No'} onClick={() => setSensitiveToDust('No')} />
           </div>
         </div>
-         <div>
-          <label className="block text-sm font-medium text-gray-700">Primary mode of commute?</label>
-          <select value={commuteMode} onChange={(e) => setCommuteMode(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500">
-            <option>Personal Car</option>
-            <option>Motorbike/Scooter</option>
-            <option>Public Transport (Bus/Metro)</option>
-            <option>Walking/Cycling</option>
-            <option>Work from Home</option>
+
+        {/* Air Purifier */}
+        <div>
+          <label style={labelStyle}>Do you use an indoor air purifier at home?</label>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <RadioOption label="Yes" selected={indoorAirPurifier === 'Yes'} onClick={() => setIndoorAirPurifier('Yes')} />
+            <RadioOption label="No" selected={indoorAirPurifier === 'No'} onClick={() => setIndoorAirPurifier('No')} />
+          </div>
+        </div>
+
+        {/* Commute Mode */}
+        <div>
+          <label htmlFor="commute" style={labelStyle}>Primary Mode of Daily Commute</label>
+          <select
+            id="commute"
+            value={commuteMode}
+            onChange={(e) => setCommuteMode(e.target.value)}
+            style={{ ...inputStyle, cursor: 'pointer' }}
+          >
+            <option value="Work from Home">Work from Home / Remote</option>
+            <option value="Personal Car">Personal Car (AC)</option>
+            <option value="Motorbike/Scooter">Motorbike / Scooter (Open Air)</option>
+            <option value="Public Transport">Public Transport (Bus/Metro)</option>
+            <option value="Walking/Cycling">Walking / Cycling</option>
           </select>
         </div>
+
+        {/* Travel Frequency */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">How often do you travel to different cities?</label>
-          <select value={travelFrequency} onChange={(e) => setTravelFrequency(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500">
-            <option>Rarely</option><option>Monthly</option><option>Weekly</option>
+          <label htmlFor="travel" style={labelStyle}>How often do you travel between cities?</label>
+          <select
+            id="travel"
+            value={travelFrequency}
+            onChange={(e) => setTravelFrequency(e.target.value)}
+            style={{ ...inputStyle, cursor: 'pointer' }}
+          >
+            <option value="Rarely">Rarely (Occasional)</option>
+            <option value="Monthly">Monthly</option>
+            <option value="Weekly">Weekly (Frequent Commuter)</option>
           </select>
         </div>
-        
-        <div className="flex justify-between pt-4 space-x-4">
-          <button type="button" onClick={prevStep} className="w-1/3 flex justify-center py-3 px-4 border border-gray-300 rounded-md shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
-            Back
+
+        {/* Action Buttons */}
+        <div style={{ display: 'flex', gap: 12, paddingTop: 12 }}>
+          <button
+            type="button"
+            onClick={prevStep}
+            style={{
+              padding: '14px 20px',
+              background: 'transparent',
+              border: '1px solid #1e293b',
+              borderRadius: 10,
+              color: '#94a3b8',
+              fontWeight: 600,
+              fontSize: 14,
+              cursor: 'pointer',
+              fontFamily: 'Inter, sans-serif',
+            }}
+          >
+            ← Back
           </button>
-          <button type="submit" disabled={isLoading} className="w-2/3 flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transition-all duration-300 ease-in-out">
-            {isLoading ? 'Saving...' : 'Finish Setup'}
+          <button
+            type="submit"
+            disabled={isLoading}
+            style={{
+              flex: 1,
+              padding: '14px 20px',
+              background: 'linear-gradient(135deg, #06b6d4, #0891b2)',
+              border: 'none',
+              borderRadius: 10,
+              color: 'white',
+              fontWeight: 700,
+              fontSize: 15,
+              cursor: isLoading ? 'not-allowed' : 'pointer',
+              opacity: isLoading ? 0.7 : 1,
+              boxShadow: '0 8px 24px rgba(6,182,212,0.3)',
+              fontFamily: 'Inter, sans-serif',
+              transition: 'all 0.2s',
+            }}
+          >
+            {isLoading ? 'Saving Profile...' : 'Complete Setup & Open Dashboard ✨'}
           </button>
         </div>
       </form>

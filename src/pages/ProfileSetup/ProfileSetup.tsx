@@ -8,7 +8,7 @@ import Step2 from './Step2';
 
 interface ProfileSetupProps {
   user: User;
-  onProfileComplete: () => void; // The new prop to notify the parent App component
+  onProfileComplete: () => void;
 }
 
 const ProfileSetup: React.FC<ProfileSetupProps> = ({ user, onProfileComplete }) => {
@@ -16,7 +16,7 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ user, onProfileComplete }) 
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // State for all form fields
+  // Form states
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
   const [city, setCity] = useState('');
@@ -37,7 +37,7 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ user, onProfileComplete }) 
       setError('');
       setStep(step + 1);
     } else {
-      setError('Please fill out all required fields in this step.');
+      setError('Please fill out all required fields: Name, Age, City, and Occupation.');
     }
   };
 
@@ -50,42 +50,124 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ user, onProfileComplete }) 
 
     try {
       await setDoc(doc(db, 'users', user.uid), {
-        name, email: user.email, age: parseInt(age), city, occupation,
-        healthCondition, allergies, morningWalk, morningWalkTime,
-        eveningWalk, eveningWalkTime, sensitiveToDust, commuteMode,
-        indoorAirPurifier, travelFrequency, profileComplete: true, lastUpdated: new Date()
+        name,
+        email: user.email,
+        age: parseInt(age) || 25,
+        city,
+        occupation,
+        healthCondition,
+        allergies,
+        morningWalk,
+        morningWalkTime,
+        eveningWalk,
+        eveningWalkTime,
+        sensitiveToDust,
+        commuteMode,
+        indoorAirPurifier,
+        travelFrequency,
+        profileComplete: true,
+        lastUpdated: new Date(),
       });
-      
-      // Notify the parent App component that the profile is complete
-      onProfileComplete();
 
+      onProfileComplete();
     } catch (err) {
-      setError('Failed to save information. Please try again.');
-      setIsLoading(false); // Ensure loading stops on error
+      console.error(err);
+      setError('Failed to save profile. Please try again.');
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-r from-teal-50 via-white to-sky-50 p-4">
-      <div className="w-full max-w-2xl p-8 space-y-6 bg-white rounded-2xl shadow-2xl">
-        {/* Progress Bar */}
-        <div className="mb-8">
-          <div className="flex justify-between mb-2">
-            <span className={`font-semibold ${step === 1 ? 'text-cyan-600' : 'text-gray-400'}`}>1. Personal Details</span>
-            <span className={`font-semibold ${step === 2 ? 'text-cyan-600' : 'text-gray-400'}`}>2. Lifestyle Habits</span>
+    <div style={{
+      minHeight: '100vh',
+      background: '#060d1b',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '24px 16px',
+      fontFamily: 'Inter, sans-serif',
+      position: 'relative',
+    }}>
+      {/* Glow mesh */}
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        background: 'radial-gradient(ellipse 60% 50% at 50% 20%, rgba(6,182,212,0.08) 0%, transparent 70%)',
+        pointerEvents: 'none',
+      }} />
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        style={{
+          width: '100%',
+          maxWidth: 600,
+          background: '#0d1529',
+          border: '1px solid #1e293b',
+          borderRadius: 20,
+          padding: '36px 32px',
+          boxShadow: '0 30px 60px rgba(0,0,0,0.6)',
+          position: 'relative',
+          zIndex: 1,
+        }}
+      >
+        {/* Brand header */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 28 }}>
+          <div style={{
+            width: 36, height: 36,
+            borderRadius: 10,
+            background: 'linear-gradient(135deg, #06b6d4, #0891b2)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
+              <path d="M8 12a4 4 0 0 1 8 0" />
+            </svg>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: '#f1f5f9', letterSpacing: '-0.01em' }}>PurePulse</div>
+            <div style={{ fontSize: 10, color: '#06b6d4', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Health Profile Setup</div>
+          </div>
+        </div>
+
+        {/* Progress Bar Header */}
+        <div style={{ marginBottom: 28 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: step === 1 ? '#06b6d4' : '#475569' }}>
+              1. Personal Details
+            </span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: step === 2 ? '#06b6d4' : '#475569' }}>
+              2. Lifestyle & Health
+            </span>
+          </div>
+          <div style={{ width: '100%', height: 6, background: '#1e293b', borderRadius: 10, overflow: 'hidden' }}>
             <motion.div
-              className="bg-cyan-500 h-2 rounded-full"
-              initial={{ width: '0%' }}
+              style={{ height: '100%', background: 'linear-gradient(135deg, #06b6d4, #0891b2)', borderRadius: 10 }}
+              initial={{ width: '50%' }}
               animate={{ width: step === 1 ? '50%' : '100%' }}
-              transition={{ duration: 0.5, ease: "easeInOut" }}
+              transition={{ duration: 0.4, ease: 'easeInOut' }}
             />
           </div>
         </div>
 
-        {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-        
+        {/* Error message */}
+        {error && (
+          <div style={{
+            marginBottom: 20,
+            padding: '12px 16px',
+            background: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: 10,
+            color: '#f87171',
+            fontSize: 13,
+            fontWeight: 500,
+          }}>
+            ⚠️ {error}
+          </div>
+        )}
+
+        {/* Step Forms */}
         <AnimatePresence mode="wait">
           {step === 1 && (
             <Step1
@@ -98,6 +180,7 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ user, onProfileComplete }) 
               nextStep={nextStep}
             />
           )}
+
           {step === 2 && (
             <Step2
               morningWalk={morningWalk} setMorningWalk={setMorningWalk}
@@ -114,7 +197,7 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ user, onProfileComplete }) 
             />
           )}
         </AnimatePresence>
-      </div>
+      </motion.div>
     </div>
   );
 };

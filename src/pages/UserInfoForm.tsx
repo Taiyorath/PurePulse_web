@@ -3,14 +3,33 @@ import { db } from '../firebase/config';
 import { doc, setDoc } from 'firebase/firestore';
 import type { User } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
-
-// Import local image
-import UserInfoBg from '../assets/user-info-bg.jpg';
 import { motion } from 'framer-motion';
 
 interface UserInfoFormProps {
   user: User;
 }
+
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  background: '#111827',
+  border: '1px solid #1e293b',
+  borderRadius: 10,
+  padding: '12px 14px',
+  color: '#f1f5f9',
+  fontSize: 14,
+  outline: 'none',
+  fontFamily: 'Inter, sans-serif',
+  boxSizing: 'border-box',
+  marginTop: 6,
+};
+
+const labelStyle: React.CSSProperties = {
+  display: 'block',
+  fontSize: 13,
+  fontWeight: 600,
+  color: '#94a3b8',
+  marginBottom: 2,
+};
 
 const UserInfoForm: React.FC<UserInfoFormProps> = ({ user }) => {
   const [name, setName] = useState('');
@@ -22,10 +41,10 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({ user }) => {
   const [morningWalkTime, setMorningWalkTime] = useState('');
   const [eveningWalk, setEveningWalk] = useState('No');
   const [eveningWalkTime, setEveningWalkTime] = useState('');
-  const [sensitiveToDust, setSensitiveToDust] = useState('No'); // New Question 1
-  const [travelFrequency, setTravelFrequency] = useState('Rarely'); // New Question 2
-  const [indoorAirPurifier, setIndoorAirPurifier] = useState('No'); // New Question 3
-  const [occupation, setOccupation] = useState(''); // New Question 4
+  const [sensitiveToDust, setSensitiveToDust] = useState('No');
+  const [travelFrequency, setTravelFrequency] = useState('Rarely');
+  const [indoorAirPurifier, setIndoorAirPurifier] = useState('No');
+  const [occupation, setOccupation] = useState('');
 
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -41,24 +60,24 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({ user }) => {
 
     try {
       await setDoc(doc(db, 'users', user.uid), {
-        name: name,
+        name,
         email: user.email,
-        age: parseInt(age), // Store age as a number
-        city: city,
-        healthCondition: healthCondition,
-        allergies: allergies,
-        morningWalk: morningWalk,
+        age: parseInt(age) || 25,
+        city,
+        healthCondition,
+        allergies,
+        morningWalk,
         morningWalkTime: morningWalk === 'Yes' ? morningWalkTime : '',
-        eveningWalk: eveningWalk,
+        eveningWalk,
         eveningWalkTime: eveningWalk === 'Yes' ? eveningWalkTime : '',
-        sensitiveToDust: sensitiveToDust,
-        travelFrequency: travelFrequency,
-        indoorAirPurifier: indoorAirPurifier,
-        occupation: occupation,
+        sensitiveToDust,
+        travelFrequency,
+        indoorAirPurifier,
+        occupation,
+        profileComplete: true,
         lastUpdated: new Date(),
       });
-      // App.tsx's listener will detect the profile and navigate automatically.
-      navigate('/'); 
+      navigate('/');
     } catch (err) {
       setError('Failed to save information. Please try again.');
       console.error(err);
@@ -67,210 +86,135 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({ user }) => {
     }
   };
 
-  const fadeIn = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-  };
-
-  const buttonHover = {
-    scale: 1.05,
-    boxShadow: "0px 8px 15px rgba(0, 0, 0, 0.2)",
-    transition: { duration: 0.2 }
-  }
-
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-r from-teal-50 via-white to-sky-50 font-sans p-4">
+    <div style={{
+      minHeight: '100vh',
+      background: '#060d1b',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '24px 16px',
+      fontFamily: 'Inter, sans-serif',
+      position: 'relative',
+    }}>
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        background: 'radial-gradient(ellipse 60% 50% at 50% 20%, rgba(6,182,212,0.08) 0%, transparent 70%)',
+        pointerEvents: 'none',
+      }} />
+
       <motion.div
-        className="flex flex-col lg:flex-row w-full max-w-6xl overflow-hidden rounded-3xl shadow-2xl bg-white border border-gray-100"
-        initial="hidden"
-        animate="visible"
-        variants={fadeIn}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        style={{
+          width: '100%',
+          maxWidth: 580,
+          background: '#0d1529',
+          border: '1px solid #1e293b',
+          borderRadius: 20,
+          padding: '36px 32px',
+          boxShadow: '0 30px 60px rgba(0,0,0,0.6)',
+          position: 'relative',
+          zIndex: 1,
+        }}
       >
-        {/* Left Panel (Image & Introduction) */}
-        <div className="hidden lg:flex flex-col justify-center items-center w-full lg:w-1/2 bg-gradient-to-b from-cyan-100 to-teal-50 p-10 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.8 }}
-            className="mb-6"
-          >
-            <h2 className="text-4xl font-extrabold text-gray-800 leading-tight mb-2">
-              Your Health, Your Air
-            </h2>
-            <p className="text-lg text-gray-600 font-medium">Help us personalize your PurePulse experience.</p>
-          </motion.div>
-
-          <motion.img
-            src={UserInfoBg}
-            alt="Healthy Living"
-            className="rounded-xl shadow-lg object-cover w-full h-64 max-w-md"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.4, duration: 0.8 }}
-          />
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.8 }}
-            className="text-sm mt-4 text-gray-700 font-semibold"
-          >
-            Your information helps us provide precise air quality alerts and health advice.
-          </motion.p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
+          <div style={{
+            width: 36, height: 36, borderRadius: 10,
+            background: 'linear-gradient(135deg, #06b6d4, #0891b2)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
+              <path d="M8 12a4 4 0 0 1 8 0" />
+            </svg>
+          </div>
+          <div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: '#f1f5f9', letterSpacing: '-0.01em' }}>PurePulse</div>
+            <div style={{ fontSize: 10, color: '#06b6d4', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Health Profile</div>
+          </div>
         </div>
 
-        {/* Right Panel (Form) */}
-        <div className="w-full lg:w-1/2 p-8 sm:p-10 flex flex-col justify-center">
-          <h3 className="text-3xl font-bold text-gray-800 mb-2">Tell Us About Yourself</h3>
-          <p className="text-base text-gray-600 mb-8">
-            The more we know, the better we can protect you.
+        <div style={{ marginBottom: 24 }}>
+          <h2 style={{ fontSize: 22, fontWeight: 800, color: '#f1f5f9', marginBottom: 4, letterSpacing: '-0.02em' }}>
+            Tell Us About Yourself
+          </h2>
+          <p style={{ fontSize: 13, color: '#64748b' }}>
+            The more details you provide, the better our AI engine protects your health.
           </p>
-
-          <form onSubmit={handleSave} className="space-y-6">
-            {/* Basic Info */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">Full Name *</label>
-                <input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} required className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500" />
-              </div>
-              <div>
-                <label htmlFor="age" className="block text-sm font-medium text-gray-700">Age *</label>
-                <input type="number" id="age" value={age} onChange={(e) => setAge(e.target.value)} required min="1" max="120" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500" />
-              </div>
-            </div>
-            <div>
-              <label htmlFor="city" className="block text-sm font-medium text-gray-700">Your City *</label>
-              <input type="text" id="city" value={city} onChange={(e) => setCity(e.target.value)} required className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500" />
-            </div>
-             <div>
-              <label htmlFor="occupation" className="block text-sm font-medium text-gray-700">Your Occupation *</label>
-              <input type="text" id="occupation" value={occupation} onChange={(e) => setOccupation(e.target.value)} required className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500" />
-            </div>
-
-
-            {/* Health Conditions */}
-            <div>
-              <label htmlFor="health" className="block text-sm font-medium text-gray-700">Pre-existing Health Conditions</label>
-              <select id="health" value={healthCondition} onChange={(e) => setHealthCondition(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500">
-                <option value="None">None</option>
-                <option value="Asthma">Asthma</option>
-                <option value="Allergies">Allergies (General)</option>
-                <option value="COPD">COPD</option>
-                <option value="Other Respiratory Issues">Other Respiratory Issues</option>
-                <option value="Heart Condition">Heart Condition</option>
-                <option value="Diabetes">Diabetes</option>
-              </select>
-            </div>
-            <div>
-              <label htmlFor="allergies" className="block text-sm font-medium text-gray-700">Specific Allergies (e.g., pollen, dust, specific pollutants)</label>
-              <input type="text" id="allergies" value={allergies} onChange={(e) => setAllergies(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500" placeholder="e.g., pollen, dust mites, pet dander" />
-            </div>
-
-            {/* Daily Habits */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Do you go for a morning walk/jog?</label>
-              <div className="flex space-x-4">
-                <label className="inline-flex items-center">
-                  <input type="radio" value="Yes" checked={morningWalk === 'Yes'} onChange={() => setMorningWalk('Yes')} className="form-radio text-cyan-600" />
-                  <span className="ml-2">Yes</span>
-                </label>
-                <label className="inline-flex items-center">
-                  <input type="radio" value="No" checked={morningWalk === 'No'} onChange={() => {setMorningWalk('No'); setMorningWalkTime('');}} className="form-radio text-cyan-600" />
-                  <span className="ml-2">No</span>
-                </label>
-              </div>
-              {morningWalk === 'Yes' && (
-                <div className="mt-2">
-                  <label htmlFor="morningWalkTime" className="block text-sm font-medium text-gray-700">Preferred Morning Walk Time</label>
-                  <input type="time" id="morningWalkTime" value={morningWalkTime} onChange={(e) => setMorningWalkTime(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500" />
-                </div>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Do you go for an evening walk/jog?</label>
-              <div className="flex space-x-4">
-                <label className="inline-flex items-center">
-                  <input type="radio" value="Yes" checked={eveningWalk === 'Yes'} onChange={() => setEveningWalk('Yes')} className="form-radio text-cyan-600" />
-                  <span className="ml-2">Yes</span>
-                </label>
-                <label className="inline-flex items-center">
-                  <input type="radio" value="No" checked={eveningWalk === 'No'} onChange={() => {setEveningWalk('No'); setEveningWalkTime('');}} className="form-radio text-cyan-600" />
-                  <span className="ml-2">No</span>
-                </label>
-              </div>
-              {eveningWalk === 'Yes' && (
-                <div className="mt-2">
-                  <label htmlFor="eveningWalkTime" className="block text-sm font-medium text-gray-700">Preferred Evening Walk Time</label>
-                  <input type="time" id="eveningWalkTime" value={eveningWalkTime} onChange={(e) => setEveningWalkTime(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500" />
-                </div>
-              )}
-            </div>
-
-            {/* New Questions for Better Personalization */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Are you particularly sensitive to dust, smoke, or strong odors?</label>
-              <div className="flex space-x-4">
-                <label className="inline-flex items-center">
-                  <input type="radio" value="Yes" checked={sensitiveToDust === 'Yes'} onChange={() => setSensitiveToDust('Yes')} className="form-radio text-cyan-600" />
-                  <span className="ml-2">Yes</span>
-                </label>
-                <label className="inline-flex items-center">
-                  <input type="radio" value="No" checked={sensitiveToDust === 'No'} onChange={() => setSensitiveToDust('No')} className="form-radio text-cyan-600" />
-                  <span className="ml-2">No</span>
-                </label>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">How often do you travel to different cities/regions?</label>
-              <select id="travelFrequency" value={travelFrequency} onChange={(e) => setTravelFrequency(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500">
-                <option value="Rarely">Rarely</option>
-                <option value="Monthly">Monthly</option>
-                <option value="Quarterly">Quarterly</option>
-                <option value="Weekly">Weekly</option>
-              </select>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Do you use an indoor air purifier at home or work?</label>
-              <div className="flex space-x-4">
-                <label className="inline-flex items-center">
-                  <input type="radio" value="Yes" checked={indoorAirPurifier === 'Yes'} onChange={() => setIndoorAirPurifier('Yes')} className="form-radio text-cyan-600" />
-                  <span className="ml-2">Yes</span>
-                </label>
-                <label className="inline-flex items-center">
-                  <input type="radio" value="No" checked={indoorAirPurifier === 'No'} onChange={() => setIndoorAirPurifier('No')} className="form-radio text-cyan-600" />
-                  <span className="ml-2">No</span>
-                </label>
-              </div>
-            </div>
-
-            {error && <p className="text-red-500 text-sm">{error}</p>}
-            <div>
-              <motion.button
-                type="submit"
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transition-all duration-300 ease-in-out"
-                whileHover={buttonHover}
-                whileTap={{ scale: 0.98 }}
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <div className="flex items-center justify-center">
-                    <motion.div
-                      className="w-5 h-5 border-2 border-white border-t-2 border-t-transparent rounded-full animate-spin mr-2"
-                      initial={{ rotate: 0 }}
-                      animate={{ rotate: 360 }}
-                      transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                    ></motion.div>
-                    Saving Profile...
-                  </div>
-                ) : (
-                  'Save & Continue'
-                )}
-              </motion.button>
-            </div>
-          </form>
         </div>
+
+        {error && (
+          <div style={{
+            marginBottom: 20, padding: '12px 16px',
+            background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: 10, color: '#f87171', fontSize: 13, fontWeight: 500,
+          }}>
+            ⚠️ {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 120px', gap: 14 }}>
+            <div>
+              <label style={labelStyle}>Full Name *</label>
+              <input type="text" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Likhith Mr" style={inputStyle} />
+            </div>
+            <div>
+              <label style={labelStyle}>Age *</label>
+              <input type="number" value={age} onChange={(e) => setAge(e.target.value)} required min="1" max="120" placeholder="25" style={inputStyle} />
+            </div>
+          </div>
+
+          <div>
+            <label style={labelStyle}>City *</label>
+            <input type="text" value={city} onChange={(e) => setCity(e.target.value)} required placeholder="e.g. Mysuru" style={inputStyle} />
+          </div>
+
+          <div>
+            <label style={labelStyle}>Occupation *</label>
+            <input type="text" value={occupation} onChange={(e) => setOccupation(e.target.value)} required placeholder="Software Engineer" style={inputStyle} />
+          </div>
+
+          <div>
+            <label style={labelStyle}>Pre-existing Health Conditions</label>
+            <select value={healthCondition} onChange={(e) => setHealthCondition(e.target.value)} style={{ ...inputStyle, cursor: 'pointer' }}>
+              <option value="None">None</option>
+              <option value="Asthma">Asthma</option>
+              <option value="Allergies">Allergies</option>
+              <option value="COPD">COPD</option>
+              <option value="Heart Condition">Heart Condition</option>
+            </select>
+          </div>
+
+          <div>
+            <label style={labelStyle}>Specific Allergies</label>
+            <input type="text" value={allergies} onChange={(e) => setAllergies(e.target.value)} placeholder="Dust, pollen" style={inputStyle} />
+          </div>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            style={{
+              marginTop: 12,
+              padding: '14px 20px',
+              background: 'linear-gradient(135deg, #06b6d4, #0891b2)',
+              border: 'none',
+              borderRadius: 10,
+              color: 'white',
+              fontWeight: 700,
+              fontSize: 15,
+              cursor: isLoading ? 'not-allowed' : 'pointer',
+              opacity: isLoading ? 0.7 : 1,
+              boxShadow: '0 8px 24px rgba(6,182,212,0.3)',
+              fontFamily: 'Inter, sans-serif',
+            }}
+          >
+            {isLoading ? 'Saving Profile...' : 'Save & Open Dashboard ✨'}
+          </button>
+        </form>
       </motion.div>
     </div>
   );
