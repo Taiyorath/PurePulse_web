@@ -7,12 +7,17 @@ export const ThemeToggle: React.FC = () => {
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
+    document.body.setAttribute('data-theme', theme);
     if (theme === 'light') {
       document.documentElement.classList.add('light');
       document.documentElement.classList.remove('dark');
+      document.body.classList.add('light');
+      document.body.classList.remove('dark');
     } else {
       document.documentElement.classList.add('dark');
       document.documentElement.classList.remove('light');
+      document.body.classList.add('dark');
+      document.body.classList.remove('light');
     }
   }, [theme]);
 
@@ -21,6 +26,7 @@ export const ThemeToggle: React.FC = () => {
     setTheme(nextTheme);
     localStorage.setItem('pp_theme', nextTheme);
     document.documentElement.setAttribute('data-theme', nextTheme);
+    document.body.setAttribute('data-theme', nextTheme);
     window.dispatchEvent(new CustomEvent('pp_theme_changed', { detail: { theme: nextTheme } }));
   };
 

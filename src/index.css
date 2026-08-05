@@ -36,6 +36,60 @@
   --radius-xl:  24px;
 }
 
+/* ─── Light Mode Token Overrides ───────────────────────────────────── */
+[data-theme="light"], html.light, body.light {
+  --bg-base:       #f8fafc;
+  --bg-surface:    #ffffff;
+  --bg-card:       #f1f5f9;
+  --bg-card-hover: #e2e8f0;
+  --border:        #cbd5e1;
+  --border-light:  #94a3b8;
+
+  --accent:        #0284c7;
+  --accent-dim:    #0369a1;
+  --accent-glow:   rgba(2, 132, 199, 0.15);
+
+  --text-primary:  #0f172a;
+  --text-secondary:#334155;
+  --text-muted:    #64748b;
+}
+
+/* Light mode hardcoded background overrides */
+[data-theme="light"] div[style*="background: #060d1b"],
+[data-theme="light"] div[style*="background: '#060d1b'"],
+html.light div[style*="#060d1b"] {
+  background-color: #f8fafc !important;
+}
+
+[data-theme="light"] div[style*="background: #0d1529"],
+[data-theme="light"] div[style*="background: '#0d1529'"],
+html.light div[style*="#0d1529"] {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.06) !important;
+}
+
+[data-theme="light"] div[style*="background: #111827"],
+[data-theme="light"] div[style*="background: '#111827'"],
+html.light div[style*="#111827"] {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] select,
+html.light select,
+[data-theme="light"] input,
+html.light input {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] h1, [data-theme="light"] h2, [data-theme="light"] h3, [data-theme="light"] h4,
+html.light h1, html.light h2, html.light h3, html.light h4 {
+  color: #0f172a !important;
+}
+
 /* ─── Base Reset ──────────────────────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
