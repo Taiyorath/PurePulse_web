@@ -120,7 +120,6 @@ const App: React.FC = () => {
       {/* Air Quality routes */}
       <Route path="/air-quality"          element={<AirQualityHotspotDetection />} />
       <Route path="/hotspot-detection"    element={<AirQualityHotspotDetection />} />
-      <Route path="/ml-dashboard"         element={<SummaryDashboard />} />
       <Route path="/intelligence"         element={<RealTimeMLDashboard />} />
       <Route path="/air-quality-news"     element={<AirQualityNews />} />
       <Route path="/air-quality-videos"   element={<AirQualityNews initialTab="videos" />} />

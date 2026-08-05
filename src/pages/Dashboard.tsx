@@ -386,7 +386,6 @@ const Dashboard: React.FC<DashboardProps> = ({ user, profile }) => {
     { icon: <Icon path={["M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"]} size={16} />, label: 'Hotspot Detection', path: '/hotspot-detection' },
     { icon: <Icon path={["M3 6l9-4 9 4v8l-9 4-9-4V6z", "M12 2v20", "M3 6l9 4 9-4"]} size={16} />, label: 'AQI Map', path: `/air-quality?city=${locationInfo?.city || 'mysuru'}` },
     { icon: <Icon path={["M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2", "M18 14h-8", "M15 18h-5", "M10 6h8v4h-8V6Z"]} size={16} />, label: 'Air Quality News', path: '/air-quality-news' },
-    { icon: <Icon path="M22 12h-4l-3 9L9 3l-3 9H2" size={16} />, label: 'ML Dashboard', path: '/ml-dashboard' },
   ];
 
   const pollutants = aqiData ? [
@@ -449,11 +448,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, profile }) => {
                   <NavItem key={item.path} {...item} active={location.pathname === item.path} onClick={() => { navigate(item.path); setSidebarOpen(false); }} />
                 ))}
                 <div style={{ fontSize: 10, color: '#334155', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0 6px', marginTop: 16, marginBottom: 6 }}>Monitoring</div>
-                {navItems.slice(2, 6).map((item) => (
-                  <NavItem key={item.path} {...item} active={location.pathname === item.path} onClick={() => { navigate(item.path); setSidebarOpen(false); }} />
-                ))}
-                <div style={{ fontSize: 10, color: '#334155', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0 6px', marginTop: 16, marginBottom: 6 }}>Analytics</div>
-                {navItems.slice(6).map((item) => (
+                {navItems.slice(2).map((item) => (
                   <NavItem key={item.path} {...item} active={location.pathname === item.path} onClick={() => { navigate(item.path); setSidebarOpen(false); }} />
                 ))}
               </nav>
@@ -903,12 +898,6 @@ const Dashboard: React.FC<DashboardProps> = ({ user, profile }) => {
                 title="Air Quality News" desc="Latest research, alerts, and expert insights from trusted environmental sources."
                 color="#eab308" badge="Updated" badgeClass="badge-yellow"
                 onClick={() => navigate('/air-quality-news')}
-              />
-              <FeatureCard
-                icon={<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 8.5l3 3 4-5 3 3"/></svg>}
-                title="ML Dashboard" desc="Model performance, training stats, accuracy metrics and AQI prediction analytics."
-                color="#64748b" badge="Analytics" badgeClass="badge-purple"
-                onClick={() => navigate('/ml-dashboard')}
               />
             </div>
           </motion.div>
