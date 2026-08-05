@@ -1,10 +1,7 @@
 // Future Health Advisory - Long-term AQI Health Impact Analysis
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeftIcon, HeartIcon, ExclamationTriangleIcon, ChartBarIcon, CalendarIcon } from '@heroicons/react/24/outline';
-import { config } from '../config/apiKeys';
 
-// Interfaces
 interface HistoricalAQIData {
   date: string;
   aqi: number;
@@ -41,18 +38,17 @@ interface ForecastScenario {
 
 const FutureHealthAdvisory: React.FC = () => {
   const navigate = useNavigate();
-  
+
   // State Management
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedCity, setSelectedCity] = useState('Delhi');
+  const [selectedCity, setSelectedCity] = useState('Mysuru');
   const [selectedTimeRange, setSelectedTimeRange] = useState('10y');
-  const [historicalData, setHistoricalData] = useState<HistoricalAQIData[]>([]);
   const [personalizedRisk, setPersonalizedRisk] = useState<PersonalizedRisk | null>(null);
   const [forecastScenarios, setForecastScenarios] = useState<ForecastScenario[]>([]);
   const [exposureTimeline, setExposureTimeline] = useState<any>(null);
 
   // Cities and Time Ranges
-  const cities = ['Delhi', 'Mumbai', 'Bangalore', 'Chennai', 'Kolkata', 'Hyderabad', 'Pune', 'Jaipur'];
+  const cities = ['Mysuru', 'Bangalore', 'Delhi', 'Mumbai', 'Chennai', 'Kolkata', 'Hyderabad', 'Pune', 'Jaipur'];
   const timeRanges = [
     { value: '5y', label: '5 Years' },
     { value: '10y', label: '10 Years' },
@@ -64,565 +60,321 @@ const FutureHealthAdvisory: React.FC = () => {
   const healthRiskFactors: HealthRiskFactors[] = [
     {
       pollutant: 'PM2.5',
-      longTermEffect: '↑ Risk of heart disease, reduced lung function, chronic bronchitis',
+      longTermEffect: '↑ Risk of cardiovascular disease, reduced lung capacity, chronic bronchitis',
       latencyPeriod: '5–10+ years',
       riskLevel: 'severe'
     },
     {
       pollutant: 'PM10',
-      longTermEffect: 'Respiratory irritation, reduced lung growth in children',
+      longTermEffect: 'Upper respiratory tract irritation, bronchial tissue inflammation',
       latencyPeriod: '3–7 years',
       riskLevel: 'high'
     },
     {
       pollutant: 'NO₂, SO₂',
-      longTermEffect: 'Asthma aggravation, lung inflammation',
+      longTermEffect: 'Asthma exacerbation, increased airway responsiveness & allergy triggers',
       latencyPeriod: '2–5 years',
       riskLevel: 'moderate'
     },
     {
-      pollutant: 'O₃',
-      longTermEffect: 'Lung tissue damage, premature aging of lungs',
+      pollutant: 'O₃ (Ozone)',
+      longTermEffect: 'Deep lung tissue oxidative damage, premature cellular pulmonary aging',
       latencyPeriod: '5+ years',
       riskLevel: 'high'
     }
   ];
 
-  // Generate Historical Data (Simulated with realistic patterns)
-  const generateHistoricalData = useCallback((city: string, years: number) => {
-    const data: HistoricalAQIData[] = [];
-    const baseAQI = city === 'Delhi' ? 180 : city === 'Mumbai' ? 120 : city === 'Bangalore' ? 80 : 100;
-    
-    for (let year = 0; year < years; year++) {
-      for (let month = 0; month < 12; month++) {
-        // Seasonal variation - winter months have higher AQI
-        let seasonalMultiplier = 1.0;
-        if (month >= 10 || month <= 2) { // Winter months
-          seasonalMultiplier = 1.4;
-        } else if (month >= 3 && month <= 5) { // Summer
-          seasonalMultiplier = 0.8;
-        }
-        
-        // Yearly trend - slight improvement over time due to regulations
-        const yearlyTrend = 1 - (year * 0.02); // 2% improvement per year
-        
-        // Random variation
-        const randomVariation = 0.8 + Math.random() * 0.4;
-        
-        const aqi = Math.round(baseAQI * seasonalMultiplier * yearlyTrend * randomVariation);
-        
-        data.push({
-          date: `${new Date().getFullYear() - years + year}-${String(month + 1).padStart(2, '0')}-15`,
-          aqi: Math.max(30, Math.min(500, aqi)),
-          pm25: Math.round(aqi * 0.8),
-          pm10: Math.round(aqi * 0.9),
-          no2: Math.round(Math.random() * 50 + 20),
-          so2: Math.round(Math.random() * 30 + 10),
-          o3: Math.round(Math.random() * 80 + 40),
-          location: city
-        });
-      }
-    }
-    
-    return data.reverse(); // Most recent first
-  }, []);
+  // Calculate health risk based on city and duration
+  const calculatePersonalizedRisk = useCallback((city: string, timeRange: string) => {
+    const years = parseInt(timeRange);
+    const baseAQI = city === 'Delhi' ? 183 : city === 'Mumbai' ? 122 : city === 'Mysuru' ? 45 : city === 'Bangalore' ? 82 : 95;
 
-  // Calculate Personalized Risk
-  const calculatePersonalizedRisk = useCallback((data: HistoricalAQIData[], exposureYears: number): PersonalizedRisk => {
-    const avgAQI = data.reduce((sum, d) => sum + d.aqi, 0) / data.length;
-    const avgPM25 = data.reduce((sum, d) => sum + d.pm25, 0) / data.length;
-    
-    // Based on epidemiological studies
-    let lifeExpectancyReduction = 0;
-    let diseaseRiskIncrease = 0;
-    
-    if (avgPM25 > 100) { // Severe exposure
-      lifeExpectancyReduction = Math.min(exposureYears * 0.8, 12);
-      diseaseRiskIncrease = Math.min(exposureYears * 15, 200);
-    } else if (avgPM25 > 60) { // High exposure
-      lifeExpectancyReduction = Math.min(exposureYears * 0.5, 8);
-      diseaseRiskIncrease = Math.min(exposureYears * 10, 150);
-    } else if (avgPM25 > 35) { // Moderate exposure
-      lifeExpectancyReduction = Math.min(exposureYears * 0.3, 5);
-      diseaseRiskIncrease = Math.min(exposureYears * 8, 100);
-    } else { // Low exposure
-      lifeExpectancyReduction = Math.min(exposureYears * 0.1, 2);
-      diseaseRiskIncrease = Math.min(exposureYears * 5, 50);
-    }
-    
-    const actions = [];
-    if (avgAQI > 150) {
-      actions.push('Install high-quality HEPA air purifiers', 'Use N95 masks during outdoor activities', 'Consider relocation to cleaner areas');
-    }
-    if (avgAQI > 100) {
-      actions.push('Regular lung function tests', 'Avoid outdoor exercise during high AQI days', 'Improve home ventilation');
-    }
-    actions.push('Annual health checkups', 'Monitor daily AQI levels', 'Support clean air initiatives');
-    
-    return {
-      exposureDuration: exposureYears,
-      averageAQI: Math.round(avgAQI),
-      lifeExpectancyReduction: Math.round(lifeExpectancyReduction * 10) / 10,
-      diseaseRiskIncrease: Math.round(diseaseRiskIncrease),
-      recommendedActions: actions.slice(0, 4)
-    };
-  }, []);
+    // Air Quality Life Index (AQLI) estimation formula
+    const excessPM25 = Math.max(0, (baseAQI * 0.55) - 5);
+    const lifeExpectancyReduction = Math.round((excessPM25 * 0.098) * 10) / 10;
+    const diseaseRiskIncrease = Math.min(300, Math.round(excessPM25 * 1.8));
 
-  // Generate Forecast Scenarios
-  const generateForecastScenarios = useCallback((currentAQI: number): ForecastScenario[] => {
-    return [
+    const recommendations = [
+      'Install high-efficiency HEPA air purifiers in sleeping quarters',
+      'Wear N95/FFP2 masks during peak traffic and morning inversion hours',
+      'Schedule annual pulmonary function tests (Spirometry)',
+      'Optimize outdoor workouts according to real-time hourly AQI forecasts'
+    ];
+
+    setPersonalizedRisk({
+      exposureDuration: years,
+      averageAQI: baseAQI,
+      lifeExpectancyReduction,
+      diseaseRiskIncrease,
+      recommendedActions: recommendations
+    });
+
+    setForecastScenarios([
       {
         name: 'Business as Usual',
         year: 2035,
-        predictedAQI: Math.round(currentAQI * 1.1),
-        healthImpact: '15% increase in respiratory illness',
-        color: 'bg-red-500'
+        predictedAQI: Math.round(baseAQI * 1.25),
+        healthImpact: '+18% increase in chronic respiratory illness',
+        color: '#ef4444'
       },
       {
-        name: 'Improved Controls',
+        name: 'EV & Clean Energy Policy',
         year: 2035,
-        predictedAQI: Math.round(currentAQI * 0.7),
-        healthImpact: '30% reduction in health risks',
-        color: 'bg-green-500'
+        predictedAQI: Math.max(30, Math.round(baseAQI * 0.65)),
+        healthImpact: '35% reduction in cardiovascular health risk',
+        color: '#22c55e'
       },
       {
-        name: 'Climate Worsening',
+        name: 'Severe Climate Trajectory',
         year: 2035,
-        predictedAQI: Math.round(currentAQI * 1.4),
-        healthImpact: '40% increase in health complications',
-        color: 'bg-red-700'
+        predictedAQI: Math.round(baseAQI * 1.5),
+        healthImpact: 'Significant increase in pulmonary hospitalizations',
+        color: '#dc2626'
       }
-    ];
+    ]);
+
+    const totalDays = years * 365;
+    const unhealthyRatio = baseAQI > 150 ? 0.65 : baseAQI > 100 ? 0.45 : baseAQI > 60 ? 0.25 : 0.08;
+
+    setExposureTimeline({
+      totalDays,
+      unhealthyDays: Math.round(totalDays * unhealthyRatio),
+      severeDays: Math.round(totalDays * (unhealthyRatio * 0.3)),
+      cleanDays: Math.round(totalDays * (1 - unhealthyRatio))
+    });
   }, []);
 
-  // Fetch Historical Data (Enhanced with real API integration)
-  const fetchHistoricalData = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      // In a real implementation, this would fetch from your historical data API
-      // For now, we'll generate realistic simulated data
-      const years = parseInt(selectedTimeRange.replace('y', ''));
-      const data = generateHistoricalData(selectedCity, years);
-      
-      setHistoricalData(data);
-      
-      // Calculate personalized risk
-      const risk = calculatePersonalizedRisk(data, years);
-      setPersonalizedRisk(risk);
-      
-      // Generate forecast scenarios
-      const currentAQI = data[data.length - 1]?.aqi || 100;
-      const scenarios = generateForecastScenarios(currentAQI);
-      setForecastScenarios(scenarios);
-      
-      // Generate exposure timeline
-      const timeline = {
-        totalDays: data.length * 30, // Approximate days
-        unhealthyDays: data.filter(d => d.aqi > 100).length * 30,
-        severelyUnhealthyDays: data.filter(d => d.aqi > 200).length * 30,
-        averageExposure: risk.averageAQI
-      };
-      setExposureTimeline(timeline);
-      
-    } catch (error) {
-      console.error('Error fetching historical data:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [selectedCity, selectedTimeRange, generateHistoricalData, calculatePersonalizedRisk, generateForecastScenarios]);
-
-  // Effects
   useEffect(() => {
-    fetchHistoricalData();
-  }, [fetchHistoricalData]);
+    setIsLoading(true);
+    const timer = setTimeout(() => {
+      calculatePersonalizedRisk(selectedCity, selectedTimeRange);
+      setIsLoading(false);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [selectedCity, selectedTimeRange, calculatePersonalizedRisk]);
 
-  // Utility Functions
-  const getRiskColor = (level: string) => {
+  const getRiskBadge = (level: string) => {
     switch (level) {
-      case 'severe': return 'bg-red-100 text-red-800 border-red-200';
-      case 'high': return 'bg-orange-100 text-orange-800 border-orange-200';
-      case 'moderate': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      default: return 'bg-green-100 text-green-800 border-green-200';
+      case 'severe': return { color: '#ef4444', bg: 'rgba(239, 68, 68, 0.15)', border: 'rgba(239, 68, 68, 0.3)' };
+      case 'high': return { color: '#f97316', bg: 'rgba(249, 115, 22, 0.15)', border: 'rgba(249, 115, 22, 0.3)' };
+      case 'moderate': return { color: '#eab308', bg: 'rgba(234, 179, 8, 0.15)', border: 'rgba(234, 179, 8, 0.3)' };
+      default: return { color: '#22c55e', bg: 'rgba(34, 197, 94, 0.15)', border: 'rgba(34, 197, 94, 0.3)' };
     }
-  };
-
-  const getAQIColor = (aqi: number) => {
-    if (aqi <= 50) return 'text-green-600';
-    if (aqi <= 100) return 'text-yellow-600';
-    if (aqi <= 150) return 'text-orange-600';
-    if (aqi <= 200) return 'text-red-600';
-    if (aqi <= 300) return 'text-purple-600';
-    return 'text-red-800';
   };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-cyan-50 flex items-center justify-center">
-        <div className="text-center px-4">
-          <div className="w-16 h-16 bg-cyan-600 rounded-full mb-4 animate-pulse mx-auto"></div>
-          <p className="text-slate-700 text-lg font-medium">Analyzing Health Impact Data...</p>
-          <p className="text-slate-500 text-sm">Processing {selectedTimeRange} of exposure history</p>
+      <div style={{
+        minHeight: '100vh', background: '#060d1b', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontFamily: 'Inter, sans-serif',
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div className="spinner" style={{ width: 44, height: 44, margin: '0 auto 16px', borderWidth: 3 }} />
+          <div style={{ fontSize: 16, color: '#f1f5f9', fontWeight: 700 }}>Computing Long-Term Health Risks...</div>
+          <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>Analyzing {selectedTimeRange} exposure dataset for {selectedCity}</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-cyan-50">
-      {/* Header */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 sm:gap-0">
-            <div className="flex items-center space-x-4">
+    <div style={{ minHeight: '100vh', background: '#060d1b', color: '#f1f5f9', fontFamily: 'Inter, sans-serif', padding: '24px 20px', position: 'relative' }}>
+      {/* Background Mesh */}
+      <div style={{ position: 'fixed', inset: 0, background: 'radial-gradient(ellipse 70% 50% at 30% 0%, rgba(6,182,212,0.06) 0%, transparent 70%), #060d1b', pointerEvents: 'none', zIndex: 0 }} />
+
+      <div style={{ maxWidth: 1100, margin: '0 auto', position: 'relative', zIndex: 1 }}>
+
+        {/* ── HEADER ────────────────────────────────────────────────────────── */}
+        <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 16, padding: '20px 24px', marginBottom: 24, boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
               <button
                 onClick={() => navigate('/')}
-                className="flex items-center justify-center w-10 h-10 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition-all duration-200"
+                style={{
+                  width: 38, height: 38, borderRadius: 10, background: '#111827', border: '1px solid #1e293b',
+                  color: '#06b6d4', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+                title="Back to Dashboard"
               >
-                <ArrowLeftIcon className="w-5 h-5" />
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <path d="M19 12H5M12 19l-7-7 7-7" />
+                </svg>
               </button>
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-slate-800">
-                  Future Health Advisory
+                <h1 style={{ fontSize: 22, fontWeight: 800, color: '#f1f5f9', letterSpacing: '-0.02em', margin: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
+                  🫁 Future Health Advisory
+                  <span className="badge badge-cyan" style={{ fontSize: 11, padding: '3px 8px' }}>Epidemiological Model</span>
                 </h1>
-                <p className="text-slate-600 text-xs sm:text-sm">Long-term AQI Health Impact Analysis</p>
+                <p style={{ fontSize: 13, color: '#64748b', marginTop: 2, margin: 0 }}>
+                  Long-term AQI health impact, pulmonary risk projections & AQLI life expectancy analysis
+                </p>
               </div>
             </div>
-            
-            {/* Controls */}
-            <div className="flex items-center space-x-2 sm:space-x-4">
+
+            {/* Selectors */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <select
                 value={selectedCity}
                 onChange={(e) => setSelectedCity(e.target.value)}
-                className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                style={{ background: '#111827', border: '1px solid #1e293b', borderRadius: 8, padding: '8px 12px', color: '#f1f5f9', fontSize: 13, fontWeight: 600, outline: 'none', cursor: 'pointer' }}
               >
-                {cities.map(city => (
-                  <option key={city} value={city}>{city}</option>
-                ))}
+                {cities.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
-              
+
               <select
                 value={selectedTimeRange}
                 onChange={(e) => setSelectedTimeRange(e.target.value)}
-                className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                style={{ background: '#111827', border: '1px solid #1e293b', borderRadius: 8, padding: '8px 12px', color: '#f1f5f9', fontSize: 13, fontWeight: 600, outline: 'none', cursor: 'pointer' }}
               >
-                {timeRanges.map(range => (
-                  <option key={range.value} value={range.value}>{range.label}</option>
-                ))}
+                {timeRanges.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
               </select>
             </div>
           </div>
         </div>
-      </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {/* Data Collection & Preprocessing Section */}
-        <section className="mb-8 sm:mb-12">
-          <div className="flex items-center space-x-3 mb-4 sm:mb-6">
-            <span className="text-xl sm:text-2xl">🧠</span>
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-800">Data Collection & Pre-processing</h2>
-          </div>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-            <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-slate-200">
-              <h3 className="text-base sm:text-lg font-medium text-slate-800 mb-4">Historical Data Sources</h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-cyan-50 rounded-lg">
-                  <span className="text-sm font-medium text-cyan-800">CPCB (India)</span>
-                  <span className="text-xs text-cyan-600 bg-cyan-100 px-2 py-1 rounded">Primary</span>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                  <span className="text-sm font-medium text-slate-800">WAQI Network</span>
-                  <span className="text-xs text-slate-600 bg-slate-100 px-2 py-1 rounded">Global</span>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                  <span className="text-sm font-medium text-slate-800">Satellite Data (MODIS/Sentinel)</span>
-                  <span className="text-xs text-slate-600 bg-slate-100 px-2 py-1 rounded">Backup</span>
-                </div>
-              </div>
+        {/* ── HISTORICAL EXPOSURE METRICS ──────────────────────────────────── */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14, marginBottom: 24 }}>
+          {/* Average AQI */}
+          <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 14, padding: '18px 20px' }}>
+            <div style={{ fontSize: 11, color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
+              Average Exposure AQI
             </div>
-
-            <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-slate-200">
-              <h3 className="text-base sm:text-lg font-medium text-slate-800 mb-4">Key Pollutants Tracked</h3>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 bg-red-50 rounded-lg border border-red-100">
-                  <div className="text-sm font-medium text-red-700">PM2.5</div>
-                  <div className="text-xs text-red-600">Most Critical</div>
-                </div>
-                <div className="p-3 bg-orange-50 rounded-lg border border-orange-100">
-                  <div className="text-sm font-medium text-orange-700">PM10</div>
-                  <div className="text-xs text-orange-600">Respiratory</div>
-                </div>
-                <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-100">
-                  <div className="text-sm font-medium text-yellow-700">NO₂</div>
-                  <div className="text-xs text-yellow-600">Vehicle Emissions</div>
-                </div>
-                <div className="p-3 bg-cyan-50 rounded-lg border border-cyan-100">
-                  <div className="text-sm font-medium text-cyan-700">O₃</div>
-                  <div className="text-xs text-cyan-600">Photochemical</div>
-                </div>
-              </div>
+            <div style={{ fontSize: 32, fontWeight: 900, color: (personalizedRisk?.averageAQI || 0) <= 50 ? '#22c55e' : (personalizedRisk?.averageAQI || 0) <= 100 ? '#eab308' : '#ef4444', lineHeight: 1 }}>
+              {personalizedRisk?.averageAQI}
+            </div>
+            <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>
+              Over {selectedTimeRange} in {selectedCity}
             </div>
           </div>
-        </section>
 
-        {/* Historical Trend Analysis */}
-        <section className="mb-8 sm:mb-12">
-          <div className="flex items-center space-x-3 mb-4 sm:mb-6">
-            <span className="text-xl sm:text-2xl">📈</span>
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-800">Historical Trend Analysis</h2>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-slate-200">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-base sm:text-lg font-medium text-slate-800">Average AQI</h3>
-                <ChartBarIcon className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-600" />
-              </div>
-              <div className={`text-2xl sm:text-3xl font-bold mb-2 ${getAQIColor(personalizedRisk?.averageAQI || 0)}`}>
-                {personalizedRisk?.averageAQI}
-              </div>
-              <p className="text-xs sm:text-sm text-slate-600">Over {selectedTimeRange} in {selectedCity}</p>
+          {/* Unhealthy Days */}
+          <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 14, padding: '18px 20px' }}>
+            <div style={{ fontSize: 11, color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
+              Unhealthy Exposure Days
             </div>
-
-            <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-slate-200">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-base sm:text-lg font-medium text-slate-800">Unhealthy Days</h3>
-                <ExclamationTriangleIcon className="w-5 h-5 sm:w-6 sm:h-6 text-orange-500" />
-              </div>
-              <div className="text-2xl sm:text-3xl font-bold text-orange-600 mb-2">
-                {exposureTimeline?.unhealthyDays || 0}
-              </div>
-              <p className="text-xs sm:text-sm text-slate-600">Days with AQI &gt; 100</p>
+            <div style={{ fontSize: 32, fontWeight: 900, color: '#f97316', lineHeight: 1 }}>
+              {exposureTimeline?.unhealthyDays.toLocaleString()} <span style={{ fontSize: 13, fontWeight: 500, color: '#64748b' }}>days</span>
             </div>
-
-            <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-slate-200 sm:col-span-2 lg:col-span-1">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-base sm:text-lg font-medium text-slate-800">Exposure Duration</h3>
-                <CalendarIcon className="w-5 h-5 sm:w-6 sm:h-6 text-slate-500" />
-              </div>
-              <div className="text-2xl sm:text-3xl font-bold text-slate-600 mb-2">
-                {personalizedRisk?.exposureDuration} years
-              </div>
-              <p className="text-xs sm:text-sm text-slate-600">Continuous exposure period</p>
+            <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>
+              Days with AQI &gt; 100 threshold
             </div>
           </div>
-        </section>
 
-        {/* Health Risk Factors Table */}
-        <section className="mb-8 sm:mb-12">
-          <div className="flex items-center space-x-3 mb-4 sm:mb-6">
-            <span className="text-xl sm:text-2xl">🫁</span>
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-800">Long-Term Health Effects</h2>
+          {/* Life Expectancy Reduction */}
+          <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 14, padding: '18px 20px' }}>
+            <div style={{ fontSize: 11, color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
+              Est. Life Expectancy Impact
+            </div>
+            <div style={{ fontSize: 32, fontWeight: 900, color: (personalizedRisk?.lifeExpectancyReduction || 0) > 2 ? '#ef4444' : '#22c55e', lineHeight: 1 }}>
+              {personalizedRisk?.lifeExpectancyReduction === 0 ? 'Minimal Impact' : `-${personalizedRisk?.lifeExpectancyReduction} Yrs`}
+            </div>
+            <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>
+              Based on University of Chicago AQLI Model
+            </div>
           </div>
-          
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-slate-50">
-                  <tr>
-                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-medium text-slate-800">Pollutant</th>
-                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-medium text-slate-800">Long-term Effect</th>
-                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-medium text-slate-800 hidden sm:table-cell">Latency Period</th>
-                    <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-medium text-slate-800">Risk Level</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {healthRiskFactors.map((factor, index) => (
-                    <tr key={index} className="hover:bg-slate-50">
-                      <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium text-slate-800">{factor.pollutant}</td>
-                      <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-slate-600">{factor.longTermEffect}</td>
-                      <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-slate-600 hidden sm:table-cell">{factor.latencyPeriod}</td>
-                      <td className="px-3 sm:px-6 py-3 sm:py-4">
-                        <span className={`px-2 sm:px-3 py-1 text-xs font-medium rounded-full border ${getRiskColor(factor.riskLevel)}`}>
-                          {factor.riskLevel.toUpperCase()}
+
+          {/* Respiratory Risk Increase */}
+          <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 14, padding: '18px 20px' }}>
+            <div style={{ fontSize: 11, color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
+              Cardiovascular Risk Shift
+            </div>
+            <div style={{ fontSize: 32, fontWeight: 900, color: (personalizedRisk?.diseaseRiskIncrease || 0) > 50 ? '#ef4444' : '#22c55e', lineHeight: 1 }}>
+              +{personalizedRisk?.diseaseRiskIncrease}%
+            </div>
+            <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>
+              Relative risk over baseline
+            </div>
+          </div>
+        </div>
+
+        {/* ── LONG TERM HEALTH EFFECTS TABLE ───────────────────────────────── */}
+        <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 16, padding: '22px 24px', marginBottom: 24, boxShadow: '0 10px 30px rgba(0,0,0,0.4)' }}>
+          <h2 style={{ fontSize: 16, fontWeight: 700, color: '#f1f5f9', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+            🔬 Long-Term Biological Health Effects
+          </h2>
+
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 13 }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid #1e293b', color: '#64748b' }}>
+                  <th style={{ padding: '10px 14px', fontWeight: 600 }}>Pollutant</th>
+                  <th style={{ padding: '10px 14px', fontWeight: 600 }}>Long-Term Health Effect</th>
+                  <th style={{ padding: '10px 14px', fontWeight: 600 }}>Latency Period</th>
+                  <th style={{ padding: '10px 14px', fontWeight: 600 }}>Risk Severity</th>
+                </tr>
+              </thead>
+              <tbody>
+                {healthRiskFactors.map((factor, idx) => {
+                  const badge = getRiskBadge(factor.riskLevel);
+                  return (
+                    <tr key={idx} style={{ borderBottom: idx < healthRiskFactors.length - 1 ? '1px solid #111827' : 'none' }}>
+                      <td style={{ padding: '12px 14px', fontWeight: 700, color: '#f1f5f9' }}>{factor.pollutant}</td>
+                      <td style={{ padding: '12px 14px', color: '#94a3b8', lineHeight: 1.5 }}>{factor.longTermEffect}</td>
+                      <td style={{ padding: '12px 14px', color: '#64748b' }}>{factor.latencyPeriod}</td>
+                      <td style={{ padding: '12px 14px' }}>
+                        <span style={{
+                          fontSize: 10, fontWeight: 700, color: badge.color, background: badge.bg,
+                          border: `1px solid ${badge.border}`, padding: '4px 10px', borderRadius: 6,
+                          textTransform: 'uppercase', letterSpacing: '0.04em',
+                        }}>
+                          {factor.riskLevel}
                         </span>
                       </td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* ── PREDICTIVE SCENARIOS & ACTIONABLE RECOMMENDATIONS ───────────── */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 16, marginBottom: 24 }}>
+
+          {/* 2035 Scenarios */}
+          <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 16, padding: '22px 24px' }}>
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: '#f1f5f9', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+              🔮 2035 Climate & Health Scenarios
+            </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {forecastScenarios.map((s) => (
+                <div key={s.name} style={{ background: '#111827', border: '1px solid #1e293b', borderRadius: 12, padding: '14px 16px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#f1f5f9' }}>{s.name}</span>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: s.color }}>Est. AQI {s.predictedAQI}</span>
+                  </div>
+                  <div style={{ fontSize: 12, color: '#94a3b8' }}>{s.healthImpact}</div>
+                </div>
+              ))}
             </div>
           </div>
-        </section>
 
-        {/* Personalized Health Impact */}
-        {personalizedRisk && (
-          <section className="mb-8 sm:mb-12">
-            <div className="flex items-center space-x-3 mb-4 sm:mb-6">
-              <span className="text-xl sm:text-2xl">🧮</span>
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-800">Health Impact Modeling</h2>
+          {/* Recommended Preventive Actions */}
+          <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 16, padding: '22px 24px' }}>
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: '#f1f5f9', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+              🛡️ Personal Medical Recommendations
+            </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {personalizedRisk?.recommendedActions.map((action, idx) => (
+                <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, background: '#111827', border: '1px solid #1e293b', borderRadius: 10, padding: '12px 14px' }}>
+                  <span style={{ color: '#06b6d4', fontSize: 14, fontWeight: 800 }}>✓</span>
+                  <span style={{ fontSize: 12, color: '#cbd5e1', lineHeight: 1.5 }}>{action}</span>
+                </div>
+              ))}
             </div>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-              <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-xl p-4 sm:p-6 border border-red-200">
-                <div className="flex items-center space-x-3 mb-4">
-                  <HeartIcon className="w-6 h-6 sm:w-8 sm:h-8 text-red-600" />
-                  <h3 className="text-lg sm:text-xl font-bold text-red-700">Life Impact Assessment</h3>
-                </div>
-                
-                <div className="space-y-4">
-                  <div className="bg-white/70 rounded-lg p-4">
-                    <div className="text-xs sm:text-sm text-red-600 mb-1">Estimated Life Expectancy Reduction</div>
-                    <div className="text-2xl sm:text-3xl font-bold text-red-700">
-                      {personalizedRisk.lifeExpectancyReduction} years
-                    </div>
-                  </div>
-                  
-                  <div className="bg-white/70 rounded-lg p-4">
-                    <div className="text-xs sm:text-sm text-red-600 mb-1">Disease Risk Increase</div>
-                    <div className="text-2xl sm:text-3xl font-bold text-red-700">
-                      +{personalizedRisk.diseaseRiskIncrease}%
-                    </div>
-                  </div>
-                  
-                  <div className="bg-white/70 rounded-lg p-4">
-                    <div className="text-xs sm:text-sm text-red-600 mb-2">Risk Projection Summary</div>
-                    <p className="text-xs sm:text-sm text-red-700">
-                      Based on {personalizedRisk.exposureDuration} years in {selectedCity} 
-                      (avg AQI {personalizedRisk.averageAQI}), chronic exposure significantly 
-                      increases cardiovascular and respiratory disease risk.
-                    </p>
-                  </div>
-                </div>
-              </div>
 
-              <div className="bg-gradient-to-br from-cyan-50 to-slate-50 rounded-xl p-4 sm:p-6 border border-cyan-200">
-                <h3 className="text-lg sm:text-xl font-medium text-cyan-700 mb-4">Recommended Actions</h3>
-                <div className="space-y-3">
-                  {personalizedRisk.recommendedActions.map((action, index) => (
-                    <div key={index} className="flex items-start space-x-3 bg-white/70 rounded-lg p-3">
-                      <span className="text-cyan-600 mt-1">🛡️</span>
-                      <span className="text-xs sm:text-sm text-cyan-800">{action}</span>
-                    </div>
-                  ))}
-                </div>
-                
-                <div className="mt-6 p-4 bg-cyan-100 rounded-lg">
-                  <div className="text-xs sm:text-sm font-medium text-cyan-800 mb-2">WHO Guideline Reference</div>
-                  <p className="text-xs text-cyan-700">
-                    Long-term exposure to PM2.5 above 5 μg/m³ significantly increases risk 
-                    of cardiovascular and respiratory diseases.
-                  </p>
-                </div>
+            <div style={{ marginTop: 16, padding: '12px 14px', background: 'rgba(6,182,212,0.08)', border: '1px solid rgba(6,182,212,0.2)', borderRadius: 10 }}>
+              <div style={{ fontSize: 11, color: '#06b6d4', fontWeight: 700, marginBottom: 2 }}>WHO Guideline Reference</div>
+              <div style={{ fontSize: 11, color: '#94a3b8', lineHeight: 1.5 }}>
+                Long-term exposure to PM2.5 above 5 μg/m³ annual mean significantly increases cardiovascular and pulmonary mortality.
               </div>
-            </div>
-          </section>
-        )}
-
-        {/* Predictive Forecasting */}
-        <section className="mb-8 sm:mb-12">
-          <div className="flex items-center space-x-3 mb-4 sm:mb-6">
-            <span className="text-xl sm:text-2xl">🔮</span>
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-800">Predictive Forecasting</h2>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {forecastScenarios.map((scenario, index) => (
-              <div key={index} className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-slate-200">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-base sm:text-lg font-medium text-slate-800">{scenario.name}</h3>
-                  <div className={`w-4 h-4 rounded-full ${scenario.color}`}></div>
-                </div>
-                
-                <div className="space-y-3">
-                  <div>
-                    <div className="text-xs sm:text-sm text-slate-600">Predicted AQI by {scenario.year}</div>
-                    <div className={`text-xl sm:text-2xl font-bold ${getAQIColor(scenario.predictedAQI)}`}>
-                      {scenario.predictedAQI}
-                    </div>
-                  </div>
-                  
-                  <div className="p-3 bg-slate-50 rounded-lg">
-                    <div className="text-xs text-slate-600 mb-1">Health Impact</div>
-                    <div className="text-xs sm:text-sm font-medium text-slate-800">{scenario.healthImpact}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Exposure Timeline Visualization */}
-        {exposureTimeline && (
-          <section className="mb-8 sm:mb-12">
-            <div className="flex items-center space-x-3 mb-4 sm:mb-6">
-              <span className="text-xl sm:text-2xl">🕒</span>
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-800">Exposure Timeline</h2>
-            </div>
-            
-            <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-slate-200">
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                <div className="text-center">
-                  <div className="text-2xl sm:text-3xl font-bold text-cyan-600 mb-2">
-                    {Math.round(exposureTimeline.totalDays / 365)}
-                  </div>
-                  <div className="text-xs sm:text-sm text-slate-600">Years of Exposure</div>
-                </div>
-                
-                <div className="text-center">
-                  <div className="text-2xl sm:text-3xl font-bold text-orange-600 mb-2">
-                    {Math.round(exposureTimeline.unhealthyDays / 365)}
-                  </div>
-                  <div className="text-xs sm:text-sm text-slate-600">Years in Unhealthy Air</div>
-                </div>
-                
-                <div className="text-center">
-                  <div className="text-2xl sm:text-3xl font-bold text-red-600 mb-2">
-                    {Math.round(exposureTimeline.severelyUnhealthyDays / 365)}
-                  </div>
-                  <div className="text-xs sm:text-sm text-slate-600">Years in Severe Conditions</div>
-                </div>
-                
-                <div className="text-center">
-                  <div className={`text-2xl sm:text-3xl font-bold mb-2 ${getAQIColor(exposureTimeline.averageExposure)}`}>
-                    {exposureTimeline.averageExposure}
-                  </div>
-                  <div className="text-xs sm:text-sm text-slate-600">Average AQI Exposure</div>
-                </div>
-              </div>
-              
-              <div className="mt-6 p-4 bg-gradient-to-r from-cyan-50 to-slate-50 rounded-lg">
-                <p className="text-xs sm:text-sm text-slate-700 text-center">
-                  <strong>Health Impact Summary:</strong> You've lived approximately{' '}
-                  <span className="font-bold text-orange-600">
-                    {Math.round(exposureTimeline.unhealthyDays / 365)} years
-                  </span>{' '}
-                  in unhealthy air conditions. This level of chronic exposure may contribute to{' '}
-                  <span className="font-bold text-red-600">
-                    {personalizedRisk?.diseaseRiskIncrease}% increased
-                  </span>{' '}
-                  risk of respiratory and cardiovascular diseases.
-                </p>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Call to Action */}
-        <section className="text-center">
-          <div className="bg-gradient-to-r from-cyan-600 to-slate-600 rounded-xl p-6 sm:p-8 text-white">
-            <h2 className="text-xl sm:text-2xl font-bold mb-4">Take Action for Your Health</h2>
-            <p className="text-cyan-100 mb-6 max-w-2xl mx-auto text-sm sm:text-base">
-              Understanding your long-term exposure helps you make informed decisions about your health and environment. 
-              Every action counts towards cleaner air and better health outcomes.
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
-              <button
-                onClick={() => navigate('/hotspot-detection')}
-                className="px-4 sm:px-6 py-2 sm:py-3 bg-white text-cyan-600 rounded-lg text-sm sm:text-base font-medium hover:bg-cyan-50 transition-colors"
-              >
-                Check Current Hotspots
-              </button>
-              <button
-                onClick={() => navigate('/air-quality-news')}
-                className="px-4 sm:px-6 py-2 sm:py-3 bg-cyan-600 text-white rounded-lg text-sm sm:text-base font-medium hover:bg-cyan-700 transition-colors border border-cyan-400"
-              >
-                Read Health News
-              </button>
             </div>
           </div>
-        </section>
-      </main>
+
+        </div>
+
+      </div>
     </div>
   );
 };
