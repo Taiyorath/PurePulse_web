@@ -16,10 +16,10 @@ interface AuthPageProps {
 
 // Animated stat that cycles through real-looking AQI values
 const LiveAQIStat: React.FC<{ city: string; aqi: number; color: string; label: string }> = ({ city, aqi, color, label }) => (
-  <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '12px 16px', minWidth: 120 }}>
-    <div style={{ fontSize: 11, color: '#64748b', marginBottom: 4, fontWeight: 500 }}>{city}</div>
-    <div style={{ fontSize: 24, fontWeight: 800, color, lineHeight: 1, marginBottom: 2 }}>{aqi}</div>
-    <div style={{ fontSize: 10, color, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</div>
+  <div style={{ background: '#111827', border: '1px solid #1e293b', borderRadius: 12, padding: '12px 14px', minWidth: 120, boxShadow: '0 4px 14px rgba(0,0,0,0.3)' }}>
+    <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4, fontWeight: 600 }}>{city}</div>
+    <div style={{ fontSize: 26, fontWeight: 900, color, lineHeight: 1, marginBottom: 4 }}>{aqi}</div>
+    <div style={{ fontSize: 10, color, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{label}</div>
   </div>
 );
 
@@ -104,66 +104,82 @@ const AuthPage: React.FC<AuthPageProps> = ({ error, setError }) => {
 
       <div style={{ width: '100%', maxWidth: 1000, display: 'flex', borderRadius: 24, overflow: 'hidden', border: '1px solid #1e293b', boxShadow: '0 40px 80px -20px rgba(0,0,0,0.8)', position: 'relative', zIndex: 1 }}>
 
-        {/* ── LEFT PANEL ────────────────────────────────────── */}
-        <div className="hidden lg:flex" style={{ width: '50%', background: 'linear-gradient(135deg, #0d1529 0%, #0a1120 100%)', flexDirection: 'column', padding: '48px 40px', position: 'relative', overflow: 'hidden' }}>
+        {/* ── LEFT PANEL (HERO SHOWCASE) ────────────────────────────────────── */}
+        <div className="hidden lg:flex" style={{ width: '52%', background: 'linear-gradient(135deg, #0d1529 0%, #060d1b 100%)', flexDirection: 'column', padding: '40px 36px', position: 'relative', overflowY: 'auto' }}>
           {/* Glow orb */}
-          <div style={{ position: 'absolute', top: -80, right: -80, width: 300, height: 300, background: 'radial-gradient(circle, rgba(6,182,212,0.12), transparent 70%)', pointerEvents: 'none' }} />
-          <div style={{ position: 'absolute', bottom: -60, left: -60, width: 200, height: 200, background: 'radial-gradient(circle, rgba(129,140,248,0.08), transparent 70%)', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', top: -80, right: -80, width: 300, height: 300, background: 'radial-gradient(circle, rgba(6,182,212,0.15), transparent 70%)', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', bottom: -60, left: -60, width: 200, height: 200, background: 'radial-gradient(circle, rgba(129,140,248,0.1), transparent 70%)', pointerEvents: 'none' }} />
 
-          {/* Brand */}
+          {/* Brand Logo & Name */}
           <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-              <div style={{ width: 36, height: 36, background: 'linear-gradient(135deg, #06b6d4, #0891b2)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
-                  <path d="M8 12a4 4 0 0 1 8 0"/>
-                  <path d="M12 8v4"/>
-                </svg>
-              </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
+              <img
+                src="/assets/purepulse_logo.png"
+                alt="PurePulse Logo"
+                style={{ width: 44, height: 44, borderRadius: 12, objectFit: 'cover', filter: 'drop-shadow(0 0 12px rgba(6,182,212,0.5))' }}
+              />
               <div>
-                <div style={{ fontSize: 16, fontWeight: 800, color: '#f1f5f9', letterSpacing: '-0.02em' }}>PurePulse</div>
-                <div style={{ fontSize: 10, color: '#06b6d4', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Infothon 2025</div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#f1f5f9', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  PurePulse
+                  <span className="badge badge-cyan" style={{ fontSize: 10, padding: '2px 8px' }}>v2.5 AI</span>
+                </div>
+                <div style={{ fontSize: 10, color: '#06b6d4', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>INFOTHON 2025</div>
               </div>
             </div>
           </motion.div>
 
-          {/* Main heading */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.7 }} style={{ marginTop: 32, marginBottom: 32, flex: 1 }}>
-            <h1 style={{ fontSize: 28, fontWeight: 800, color: '#f1f5f9', lineHeight: 1.2, marginBottom: 12, letterSpacing: '-0.02em' }}>
+          {/* Main Heading & Hero Description */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.7 }} style={{ marginTop: 24, marginBottom: 24, flex: 1 }}>
+            <h1 style={{ fontSize: 26, fontWeight: 900, color: '#f1f5f9', lineHeight: 1.2, marginBottom: 10, letterSpacing: '-0.02em' }}>
               Hyperlocal Air Quality
               <br />
-              <span style={{ background: 'linear-gradient(90deg, #06b6d4, #818cf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                Monitor
+              <span style={{ background: 'linear-gradient(135deg, #06b6d4, #38bdf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                Monitor & AI Engine
               </span>
             </h1>
-            <p style={{ color: '#64748b', fontSize: 14, lineHeight: 1.6, marginBottom: 28 }}>
+            <p style={{ color: '#94a3b8', fontSize: 13, lineHeight: 1.6, marginBottom: 18 }}>
               IoT + Government API pipeline delivering real-time AQI data with ML-based 24-hr forecasting and AI-driven personalized health alerts.
             </p>
 
-            {/* Tech tags */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 32 }}>
-              {['IoT Sensors', 'Govt APIs', 'Python', 'ML Forecasting', 'AI Health Alerts'].map((tag) => (
-                <span key={tag} className="tech-tag">{tag}</span>
+            {/* Hero Graphic Card */}
+            <div style={{ position: 'relative', height: 140, borderRadius: 14, overflow: 'hidden', border: '1px solid #1e293b', marginBottom: 20, boxShadow: '0 12px 30px rgba(0,0,0,0.5)' }}>
+              <img
+                src="/assets/hero_air_quality.png"
+                alt="Air Quality Visualization"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(13,21,41,0.7) 0%, transparent 100%)' }} />
+              <div style={{ position: 'absolute', bottom: 10, left: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span className="badge badge-cyan live-pulse" style={{ fontSize: 10 }}>📡 14,872 Active IoT Sensors</span>
+              </div>
+            </div>
+
+            {/* Tech Tags */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 24 }}>
+              {['IoT Sensors', 'Govt APIs', 'Python ML', 'ML Forecasting', 'AI Health Alerts'].map((tag) => (
+                <span key={tag} style={{ fontSize: 11, padding: '4px 10px', background: '#111827', border: '1px solid #1e293b', borderRadius: 8, color: '#cbd5e1', fontWeight: 600 }}>
+                  {tag}
+                </span>
               ))}
             </div>
 
-            {/* Live AQI stats */}
+            {/* Live AQI Stats Grid */}
             <div style={{ marginBottom: 24 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
-                <div className="live-pulse" style={{ fontSize: 12, color: '#64748b', fontWeight: 600, letterSpacing: '0.04em' }}>
-                  Real-time Global/Govt AQI
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                <div className="live-pulse" style={{ fontSize: 12, color: '#06b6d4', fontWeight: 700, letterSpacing: '0.02em', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span>🟢</span> Real-time Global/Govt AQI
                 </div>
-                <span style={{ fontSize: 10, color: '#64748b' }}>— {currentTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })} IST</span>
+                <span style={{ fontSize: 11, color: '#64748b' }}>{currentTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })} IST</span>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                <LiveAQIStat city="Your Location" aqi={65} color="#22c55e" label="Live GPS / IP" />
-                <LiveAQIStat city="Bangalore" aqi={62} color="#eab308" label="Moderate" />
-                <LiveAQIStat city="Mumbai" aqi={114} color="#f97316" label="Sensitive" />
-                <LiveAQIStat city="Delhi" aqi={178} color="#ef4444" label="Unhealthy" />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <LiveAQIStat city="Your Location" aqi={65} color="#22c55e" label="LIVE GPS / IP" />
+                <LiveAQIStat city="Bangalore" aqi={62} color="#eab308" label="MODERATE" />
+                <LiveAQIStat city="Mumbai" aqi={114} color="#f97316" label="SENSITIVE" />
+                <LiveAQIStat city="Delhi" aqi={178} color="#ef4444" label="UNHEALTHY" />
               </div>
             </div>
 
-            {/* Feature list */}
+            {/* Feature List */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {[
                 { icon: '🛰️', text: 'Real-time data from CPCB & OpenAQ government stations' },
@@ -171,16 +187,16 @@ const AuthPage: React.FC<AuthPageProps> = ({ error, setError }) => {
                 { icon: '💊', text: 'Personalized alerts for Asthma, COPD & elderly profiles' },
                 { icon: '📍', text: 'Hyperlocal detection via GPS + nearest IoT sensor' },
               ].map((item) => (
-                <div key={item.text} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '8px 12px', background: 'rgba(255,255,255,0.02)', borderRadius: 8, border: '1px solid rgba(255,255,255,0.04)' }}>
-                  <span style={{ fontSize: 14, flexShrink: 0, marginTop: 1 }}>{item.icon}</span>
-                  <span style={{ fontSize: 12, color: '#94a3b8', lineHeight: 1.5 }}>{item.text}</span>
+                <div key={item.text} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: '#111827', borderRadius: 10, border: '1px solid #1e293b' }}>
+                  <span style={{ fontSize: 15, flexShrink: 0 }}>{item.icon}</span>
+                  <span style={{ fontSize: 12, color: '#cbd5e1', fontWeight: 500, lineHeight: 1.4 }}>{item.text}</span>
                 </div>
               ))}
             </div>
           </motion.div>
 
           {/* Footer */}
-          <div style={{ fontSize: 11, color: '#334155', borderTop: '1px solid #1e293b', paddingTop: 16 }}>
+          <div style={{ fontSize: 11, color: '#64748b', borderTop: '1px solid #1e293b', paddingTop: 14, marginTop: 12 }}>
             Built for Infothon Hackathon · Open-source · MIT License
           </div>
         </div>
@@ -189,12 +205,13 @@ const AuthPage: React.FC<AuthPageProps> = ({ error, setError }) => {
         <div style={{ flex: 1, background: '#0d1529', padding: '48px 40px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
 
           {/* Mobile brand */}
-          <div className="flex lg:hidden" style={{ marginBottom: 32 }}>
+          <div className="flex lg:hidden" style={{ marginBottom: 28 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ width: 32, height: 32, background: 'linear-gradient(135deg, #06b6d4, #0891b2)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ color: 'white', fontWeight: 800, fontSize: 14 }}>P</span>
+              <img src="/assets/purepulse_logo.png" alt="PurePulse Logo" style={{ width: 36, height: 36, borderRadius: 10, filter: 'drop-shadow(0 0 8px rgba(6,182,212,0.4))' }} />
+              <div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#f1f5f9' }}>PurePulse</div>
+                <div style={{ fontSize: 9, color: '#06b6d4', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>INFOTHON 2025</div>
               </div>
-              <div style={{ fontSize: 18, fontWeight: 800, color: '#f1f5f9' }}>PurePulse</div>
             </div>
           </div>
 
