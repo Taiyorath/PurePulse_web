@@ -26,109 +26,200 @@ const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, user, pr
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 transition-opacity flex items-start sm:items-center justify-center p-0 sm:p-4">
-      <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 shadow-2xl sm:rounded-2xl w-full h-full sm:h-auto sm:max-w-[600px] sm:max-h-[90vh] overflow-hidden relative transform transition-all">
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'rgba(2, 6, 23, 0.85)',
+        backdropFilter: 'blur(12px)',
+        zIndex: 9999,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 16,
+        fontFamily: 'Inter, sans-serif',
+      }}
+    >
+      <div
+        style={{
+          background: '#0d1529',
+          border: '1px solid #1e293b',
+          borderRadius: 24,
+          maxWidth: 620,
+          width: '100%',
+          maxHeight: '90vh',
+          overflow: 'hidden',
+          boxShadow: '0 25px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(6, 182, 212, 0.1)',
+          display: 'flex',
+          flexDirection: 'column',
+          position: 'relative',
+        }}
+      >
         {/* Header */}
-        <div className="p-4 sm:p-6 bg-white/70 backdrop-blur-md border-b border-slate-200 sticky top-0 z-10">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Your Profile</h2>
-            <button
-              onClick={onClose}
-              className="text-slate-600 hover:text-slate-800 p-1.5 sm:p-2 hover:bg-slate-100 rounded-full transition-colors"
-            >
-              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+        <div
+          style={{
+            padding: '20px 24px',
+            background: '#111827',
+            borderBottom: '1px solid #1e293b',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: 20 }}>👤</span>
+            <h2 style={{ fontSize: 20, fontWeight: 800, color: '#f1f5f9', letterSpacing: '-0.02em', margin: 0 }}>
+              Your Profile
+            </h2>
           </div>
+          <button
+            onClick={onClose}
+            style={{
+              width: 34,
+              height: 34,
+              borderRadius: 10,
+              background: '#1e293b',
+              border: 'none',
+              color: '#94a3b8',
+              fontSize: 16,
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#334155';
+              e.currentTarget.style.color = '#f1f5f9';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#1e293b';
+              e.currentTarget.style.color = '#94a3b8';
+            }}
+          >
+            ✕
+          </button>
         </div>
 
-        {/* Profile Content */}
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
-          {/* Profile Header */}
-          <div className="text-center mb-6 sm:mb-8">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 mx-auto mb-3 sm:mb-4 flex items-center justify-center ring-4 ring-white shadow-xl">
-              <span className="text-2xl sm:text-3xl font-bold text-white">{profile.name[0].toUpperCase()}</span>
+        {/* Scrollable Content */}
+        <div style={{ padding: 24, overflowY: 'auto', flex: 1 }}>
+          {/* User Header Avatar */}
+          <div style={{ textAlign: 'center', marginBottom: 28 }}>
+            <div
+              style={{
+                width: 76,
+                height: 76,
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #06b6d4, #3b82f6)',
+                margin: '0 auto 14px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 8px 24px rgba(6, 182, 212, 0.35)',
+                border: '3px solid #1e293b',
+              }}
+            >
+              <span style={{ fontSize: 32, fontWeight: 900, color: '#ffffff' }}>
+                {(profile.name || user.email || 'U')[0].toUpperCase()}
+              </span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-800">{profile.name}</h2>
-            <p className="text-sm sm:text-base text-slate-500">{user.email}</p>
+            <h3 style={{ fontSize: 22, fontWeight: 800, color: '#f1f5f9', margin: '0 0 4px 0' }}>
+              {profile.name || 'User Profile'}
+            </h3>
+            <p style={{ fontSize: 13, color: '#06b6d4', fontWeight: 600, margin: 0 }}>
+              {user.email}
+            </p>
           </div>
 
-          {/* Basic Info Section */}
-          <div className="mb-6 sm:mb-8 bg-white/50 rounded-lg sm:rounded-xl p-4 sm:p-6 border border-slate-200/50 shadow-sm">
-            <h3 className="text-base sm:text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-3 sm:mb-4">Basic Information</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              <div className="bg-white/30 rounded-lg p-3">
-                <label className="text-xs sm:text-sm text-slate-500">Age</label>
-                <p className="text-sm sm:text-base font-medium text-slate-800">{profile.age} years</p>
+          {/* Basic Information */}
+          <div style={{ background: '#111827', border: '1px solid #1e293b', borderRadius: 16, padding: 20, marginBottom: 18 }}>
+            <h4 style={{ fontSize: 14, fontWeight: 800, color: '#06b6d4', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 14px 0', display: 'flex', alignItems: 'center', gap: 6 }}>
+              📌 Basic Information
+            </h4>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
+              <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 12, padding: '12px 14px' }}>
+                <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Age</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#f1f5f9', marginTop: 2 }}>{profile.age || '--'} years</div>
               </div>
-              <div className="bg-white/30 rounded-lg p-3">
-                <label className="text-xs sm:text-sm text-slate-500">Email</label>
-                <p className="text-sm sm:text-base font-medium text-slate-800 truncate">{user.email}</p>
+              <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 12, padding: '12px 14px' }}>
+                <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Email</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#f1f5f9', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</div>
               </div>
-              <div className="bg-white/30 rounded-lg p-3">
-                <label className="text-xs sm:text-sm text-slate-500">City</label>
-                <p className="text-sm sm:text-base font-medium text-slate-800">{profile.city}</p>
+              <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 12, padding: '12px 14px' }}>
+                <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>City</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#f1f5f9', marginTop: 2, textTransform: 'capitalize' }}>{profile.city || 'Mysuru'}</div>
               </div>
-              <div className="bg-white/30 rounded-lg p-3">
-                <label className="text-xs sm:text-sm text-slate-500">Occupation</label>
-                <p className="text-sm sm:text-base font-medium text-slate-800">{profile.occupation}</p>
+              <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 12, padding: '12px 14px' }}>
+                <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Occupation</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#f1f5f9', marginTop: 2, textTransform: 'capitalize' }}>{profile.occupation || 'Software Developer'}</div>
               </div>
             </div>
           </div>
 
           {/* Health Information */}
-          <div className="mb-6 sm:mb-8 bg-white/50 rounded-lg sm:rounded-xl p-4 sm:p-6 border border-slate-200/50 shadow-sm">
-            <h3 className="text-base sm:text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-3 sm:mb-4">Health Information</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              <div className="bg-white/30 rounded-lg p-3">
-                <label className="text-xs sm:text-sm text-slate-500">Health Condition</label>
-                <p className="text-sm sm:text-base font-medium text-slate-800">{profile.healthCondition}</p>
+          <div style={{ background: '#111827', border: '1px solid #1e293b', borderRadius: 16, padding: 20, marginBottom: 18 }}>
+            <h4 style={{ fontSize: 14, fontWeight: 800, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 14px 0', display: 'flex', alignItems: 'center', gap: 6 }}>
+              🫁 Health Profile
+            </h4>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
+              <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 12, padding: '12px 14px' }}>
+                <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Health Condition</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#f1f5f9', marginTop: 2 }}>{profile.healthCondition || 'None'}</div>
               </div>
-              <div className="bg-white/30 rounded-lg p-3">
-                <label className="text-xs sm:text-sm text-slate-500">Allergies</label>
-                <p className="text-sm sm:text-base font-medium text-slate-800">{profile.allergies || 'None'}</p>
+              <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 12, padding: '12px 14px' }}>
+                <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Allergies</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#f1f5f9', marginTop: 2 }}>{profile.allergies || 'None'}</div>
               </div>
-              <div className="bg-white/30 rounded-lg p-3">
-                <label className="text-xs sm:text-sm text-slate-500">Sensitive to Dust</label>
-                <p className="text-sm sm:text-base font-medium text-slate-800">{profile.sensitiveToDust}</p>
+              <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 12, padding: '12px 14px' }}>
+                <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Sensitive to Dust</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: profile.sensitiveToDust === 'Yes' ? '#ef4444' : '#22c55e', marginTop: 2 }}>
+                  {profile.sensitiveToDust || 'No'}
+                </div>
               </div>
             </div>
           </div>
 
           {/* Activity Preferences */}
-          <div className="mb-6 sm:mb-8 bg-white/50 rounded-lg sm:rounded-xl p-4 sm:p-6 border border-slate-200/50 shadow-sm">
-            <h3 className="text-base sm:text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-3 sm:mb-4">Activity Preferences</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              <div className="bg-white/30 rounded-lg p-3">
-                <label className="text-xs sm:text-sm text-slate-500">Morning Walk</label>
-                <p className="text-sm sm:text-base font-medium text-slate-800">
+          <div style={{ background: '#111827', border: '1px solid #1e293b', borderRadius: 16, padding: 20, marginBottom: 18 }}>
+            <h4 style={{ fontSize: 14, fontWeight: 800, color: '#a855f7', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 14px 0', display: 'flex', alignItems: 'center', gap: 6 }}>
+              🏃 Activity & Routines
+            </h4>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
+              <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 12, padding: '12px 14px' }}>
+                <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Morning Walk</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#f1f5f9', marginTop: 2 }}>
                   {profile.morningWalk === 'Yes' ? `Yes, at ${profile.morningWalkTime}` : 'No'}
-                </p>
+                </div>
               </div>
-              <div className="bg-white/30 rounded-lg p-3">
-                <label className="text-xs sm:text-sm text-slate-500">Evening Walk</label>
-                <p className="text-sm sm:text-base font-medium text-slate-800">
+              <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 12, padding: '12px 14px' }}>
+                <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Evening Walk</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#f1f5f9', marginTop: 2 }}>
                   {profile.eveningWalk === 'Yes' ? `Yes, at ${profile.eveningWalkTime}` : 'No'}
-                </p>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Environment Preferences */}
-          <div className="mb-6 sm:mb-8 bg-white/50 rounded-lg sm:rounded-xl p-4 sm:p-6 border border-slate-200/50 shadow-sm">
-            <h3 className="text-base sm:text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-3 sm:mb-4">Environment & Lifestyle</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              <div className="bg-white/30 rounded-lg p-3">
-                <label className="text-xs sm:text-sm text-slate-500">Travel Frequency</label>
-                <p className="text-sm sm:text-base font-medium text-slate-800">{profile.travelFrequency}</p>
+          {/* Environment & Lifestyle */}
+          <div style={{ background: '#111827', border: '1px solid #1e293b', borderRadius: 16, padding: 20 }}>
+            <h4 style={{ fontSize: 14, fontWeight: 800, color: '#22c55e', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 14px 0', display: 'flex', alignItems: 'center', gap: 6 }}>
+              🏡 Environment & Lifestyle
+            </h4>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
+              <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 12, padding: '12px 14px' }}>
+                <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Travel Frequency</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#f1f5f9', marginTop: 2 }}>{profile.travelFrequency || 'Rarely'}</div>
               </div>
-              <div className="bg-white/30 rounded-lg p-3">
-                <label className="text-xs sm:text-sm text-slate-500">Indoor Air Purifier</label>
-                <p className="text-sm sm:text-base font-medium text-slate-800">{profile.indoorAirPurifier}</p>
+              <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 12, padding: '12px 14px' }}>
+                <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Indoor Air Purifier</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: profile.indoorAirPurifier === 'Yes' ? '#22c55e' : '#f59e0b', marginTop: 2 }}>
+                  {profile.indoorAirPurifier || 'No'}
+                </div>
               </div>
             </div>
           </div>
+
         </div>
       </div>
     </div>
