@@ -112,22 +112,36 @@ html.light h1, html.light h2, html.light h3, html.light h4, html.light h5, html.
 }
 
 html.light p, [data-theme="light"] p {
-  color: #475569 !important;
+  color: #334155 !important;
 }
 
-html.light span[style*="color: #f1f5f9"], [data-theme="light"] span[style*="color: #f1f5f9"],
-html.light div[style*="color: #f1f5f9"], [data-theme="light"] div[style*="color: #f1f5f9"],
-html.light span[style*="color: #e2e8f0"], [data-theme="light"] span[style*="color: #e2e8f0"],
-html.light div[style*="color: #e2e8f0"], [data-theme="light"] div[style*="color: #e2e8f0"],
-html.light span[style*="color: #cbd5e1"], [data-theme="light"] span[style*="color: #cbd5e1"] {
+/* Specific light mode text color overrides for light text on dark bg */
+html.light *[style*="color: #f1f5f9"], [data-theme="light"] *[style*="color: #f1f5f9"],
+html.light *[style*="color: '#f1f5f9'"], [data-theme="light"] *[style*="color: '#f1f5f9'"],
+html.light *[style*="color: #e2e8f0"], [data-theme="light"] *[style*="color: #e2e8f0"],
+html.light *[style*="color: '#e2e8f0'"], [data-theme="light"] *[style*="color: '#e2e8f0'"],
+html.light *[style*="color: #ffffff"], [data-theme="light"] *[style*="color: #ffffff"],
+html.light *[style*="color: '#ffffff'"], [data-theme="light"] *[style*="color: '#ffffff'"] {
   color: #0f172a !important;
 }
 
-html.light span[style*="color: #94a3b8"], [data-theme="light"] span[style*="color: #94a3b8"],
-html.light div[style*="color: #94a3b8"], [data-theme="light"] div[style*="color: #94a3b8"],
-html.light span[style*="color: #64748b"], [data-theme="light"] span[style*="color: #64748b"],
-html.light div[style*="color: #64748b"], [data-theme="light"] div[style*="color: #64748b"] {
+html.light *[style*="color: #94a3b8"], [data-theme="light"] *[style*="color: #94a3b8"],
+html.light *[style*="color: '#94a3b8'"], [data-theme="light"] *[style*="color: '#94a3b8'"],
+html.light *[style*="color: #cbd5e1"], [data-theme="light"] *[style*="color: #cbd5e1"],
+html.light *[style*="color: '#cbd5e1'"], [data-theme="light"] *[style*="color: '#cbd5e1'"],
+html.light *[style*="color: #64748b"], [data-theme="light"] *[style*="color: #64748b"],
+html.light *[style*="color: '#64748b'"], [data-theme="light"] *[style*="color: '#64748b'"],
+html.light *[style*="color: #a0aec0"], [data-theme="light"] *[style*="color: #a0aec0"] {
   color: #475569 !important;
+}
+
+/* Inner containers that were dark in light mode */
+html.light div[style*="background: #111827"], [data-theme="light"] div[style*="background: #111827"],
+html.light div[style*="background: '#111827'"], [data-theme="light"] div[style*="background: '#111827'"],
+html.light div[style*="background: rgb(17, 24, 39)"], [data-theme="light"] div[style*="background: rgb(17, 24, 39)"],
+html.light div[style*="background: rgba(17, 24, 39"], [data-theme="light"] div[style*="background: rgba(17, 24, 39"] {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
 }
 
 /* Light mode inputs & buttons */
