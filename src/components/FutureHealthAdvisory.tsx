@@ -253,68 +253,68 @@ const FutureHealthAdvisory: React.FC = () => {
         {/* ── HISTORICAL EXPOSURE METRICS ──────────────────────────────────── */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14, marginBottom: 24 }}>
           {/* Average AQI */}
-          <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 14, padding: '18px 20px' }}>
-            <div style={{ fontSize: 11, color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
+          <div style={{ background: isLight ? '#ffffff' : '#0d1529', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b', borderRadius: 14, padding: '18px 20px' }}>
+            <div style={{ fontSize: 11, color: isLight ? '#64748b' : '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
               Average Exposure AQI
             </div>
             <div style={{ fontSize: 32, fontWeight: 900, color: (personalizedRisk?.averageAQI || 0) <= 50 ? '#22c55e' : (personalizedRisk?.averageAQI || 0) <= 100 ? '#eab308' : '#ef4444', lineHeight: 1 }}>
               {personalizedRisk?.averageAQI}
             </div>
-            <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: isLight ? '#475569' : '#94a3b8', marginTop: 4 }}>
               Over {selectedTimeRange} in {selectedCity}
             </div>
           </div>
 
           {/* Unhealthy Days */}
-          <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 14, padding: '18px 20px' }}>
-            <div style={{ fontSize: 11, color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
+          <div style={{ background: isLight ? '#ffffff' : '#0d1529', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b', borderRadius: 14, padding: '18px 20px' }}>
+            <div style={{ fontSize: 11, color: isLight ? '#64748b' : '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
               Unhealthy Exposure Days
             </div>
             <div style={{ fontSize: 32, fontWeight: 900, color: '#f97316', lineHeight: 1 }}>
-              {exposureTimeline?.unhealthyDays.toLocaleString()} <span style={{ fontSize: 13, fontWeight: 500, color: '#64748b' }}>days</span>
+              {exposureTimeline?.unhealthyDays.toLocaleString()} <span style={{ fontSize: 13, fontWeight: 500, color: isLight ? '#475569' : '#64748b' }}>days</span>
             </div>
-            <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: isLight ? '#475569' : '#94a3b8', marginTop: 4 }}>
               Days with AQI &gt; 100 threshold
             </div>
           </div>
 
           {/* Life Expectancy Reduction */}
-          <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 14, padding: '18px 20px' }}>
-            <div style={{ fontSize: 11, color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
+          <div style={{ background: isLight ? '#ffffff' : '#0d1529', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b', borderRadius: 14, padding: '18px 20px' }}>
+            <div style={{ fontSize: 11, color: isLight ? '#64748b' : '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
               Est. Life Expectancy Impact
             </div>
             <div style={{ fontSize: 32, fontWeight: 900, color: (personalizedRisk?.lifeExpectancyReduction || 0) > 2 ? '#ef4444' : '#22c55e', lineHeight: 1 }}>
               {personalizedRisk?.lifeExpectancyReduction === 0 ? 'Minimal Impact' : `-${personalizedRisk?.lifeExpectancyReduction} Yrs`}
             </div>
-            <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: isLight ? '#475569' : '#94a3b8', marginTop: 4 }}>
               Based on University of Chicago AQLI Model
             </div>
           </div>
 
           {/* Respiratory Risk Increase */}
-          <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 14, padding: '18px 20px' }}>
-            <div style={{ fontSize: 11, color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
+          <div style={{ background: isLight ? '#ffffff' : '#0d1529', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b', borderRadius: 14, padding: '18px 20px' }}>
+            <div style={{ fontSize: 11, color: isLight ? '#64748b' : '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
               Cardiovascular Risk Shift
             </div>
             <div style={{ fontSize: 32, fontWeight: 900, color: (personalizedRisk?.diseaseRiskIncrease || 0) > 50 ? '#ef4444' : '#22c55e', lineHeight: 1 }}>
               +{personalizedRisk?.diseaseRiskIncrease}%
             </div>
-            <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: isLight ? '#475569' : '#94a3b8', marginTop: 4 }}>
               Relative risk over baseline
             </div>
           </div>
         </div>
 
         {/* ── LONG TERM HEALTH EFFECTS TABLE ───────────────────────────────── */}
-        <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 16, padding: '22px 24px', marginBottom: 24, boxShadow: '0 10px 30px rgba(0,0,0,0.4)' }}>
-          <h2 style={{ fontSize: 16, fontWeight: 700, color: '#f1f5f9', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ background: isLight ? '#ffffff' : '#0d1529', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b', borderRadius: 16, padding: '22px 24px', marginBottom: 24, boxShadow: isLight ? '0 4px 20px rgba(0,0,0,0.05)' : '0 10px 30px rgba(0,0,0,0.4)' }}>
+          <h2 style={{ fontSize: 16, fontWeight: 700, color: isLight ? '#0f172a' : '#f1f5f9', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
             🔬 Long-Term Biological Health Effects
           </h2>
 
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 13 }}>
               <thead>
-                <tr style={{ borderBottom: '1px solid #1e293b', color: '#64748b' }}>
+                <tr style={{ borderBottom: isLight ? '1px solid #e2e8f0' : '1px solid #1e293b', color: isLight ? '#475569' : '#64748b' }}>
                   <th style={{ padding: '10px 14px', fontWeight: 600 }}>Pollutant</th>
                   <th style={{ padding: '10px 14px', fontWeight: 600 }}>Long-Term Health Effect</th>
                   <th style={{ padding: '10px 14px', fontWeight: 600 }}>Latency Period</th>
@@ -325,10 +325,10 @@ const FutureHealthAdvisory: React.FC = () => {
                 {healthRiskFactors.map((factor, idx) => {
                   const badge = getRiskBadge(factor.riskLevel);
                   return (
-                    <tr key={idx} style={{ borderBottom: idx < healthRiskFactors.length - 1 ? '1px solid #111827' : 'none' }}>
-                      <td style={{ padding: '12px 14px', fontWeight: 700, color: '#f1f5f9' }}>{factor.pollutant}</td>
-                      <td style={{ padding: '12px 14px', color: '#94a3b8', lineHeight: 1.5 }}>{factor.longTermEffect}</td>
-                      <td style={{ padding: '12px 14px', color: '#64748b' }}>{factor.latencyPeriod}</td>
+                    <tr key={idx} style={{ borderBottom: idx < healthRiskFactors.length - 1 ? (isLight ? '1px solid #f1f5f9' : '1px solid #111827') : 'none' }}>
+                      <td style={{ padding: '12px 14px', fontWeight: 700, color: isLight ? '#0f172a' : '#f1f5f9' }}>{factor.pollutant}</td>
+                      <td style={{ padding: '12px 14px', color: isLight ? '#334155' : '#94a3b8', lineHeight: 1.5 }}>{factor.longTermEffect}</td>
+                      <td style={{ padding: '12px 14px', color: isLight ? '#475569' : '#64748b' }}>{factor.latencyPeriod}</td>
                       <td style={{ padding: '12px 14px' }}>
                         <span style={{
                           fontSize: 10, fontWeight: 700, color: badge.color, background: badge.bg,
@@ -350,40 +350,40 @@ const FutureHealthAdvisory: React.FC = () => {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 16, marginBottom: 24 }}>
 
           {/* 2035 Scenarios */}
-          <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 16, padding: '22px 24px' }}>
-            <h3 style={{ fontSize: 15, fontWeight: 700, color: '#f1f5f9', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ background: isLight ? '#ffffff' : '#0d1529', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b', borderRadius: 16, padding: '22px 24px' }}>
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: isLight ? '#0f172a' : '#f1f5f9', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
               🔮 2035 Climate & Health Scenarios
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {forecastScenarios.map((s) => (
-                <div key={s.name} style={{ background: '#111827', border: '1px solid #1e293b', borderRadius: 12, padding: '14px 16px' }}>
+                <div key={s.name} style={{ background: isLight ? '#f8fafc' : '#111827', border: isLight ? '1px solid #e2e8f0' : '1px solid #1e293b', borderRadius: 12, padding: '14px 16px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: '#f1f5f9' }}>{s.name}</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: isLight ? '#0f172a' : '#f1f5f9' }}>{s.name}</span>
                     <span style={{ fontSize: 12, fontWeight: 800, color: s.color }}>Est. AQI {s.predictedAQI}</span>
                   </div>
-                  <div style={{ fontSize: 12, color: '#94a3b8' }}>{s.healthImpact}</div>
+                  <div style={{ fontSize: 12, color: isLight ? '#334155' : '#94a3b8' }}>{s.healthImpact}</div>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Recommended Preventive Actions */}
-          <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 16, padding: '22px 24px' }}>
-            <h3 style={{ fontSize: 15, fontWeight: 700, color: '#f1f5f9', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ background: isLight ? '#ffffff' : '#0d1529', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b', borderRadius: 16, padding: '22px 24px' }}>
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: isLight ? '#0f172a' : '#f1f5f9', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
               🛡️ Personal Medical Recommendations
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {personalizedRisk?.recommendedActions.map((action, idx) => (
-                <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, background: '#111827', border: '1px solid #1e293b', borderRadius: 10, padding: '12px 14px' }}>
+                <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, background: isLight ? '#f8fafc' : '#111827', border: isLight ? '1px solid #e2e8f0' : '1px solid #1e293b', borderRadius: 10, padding: '12px 14px' }}>
                   <span style={{ color: '#06b6d4', fontSize: 14, fontWeight: 800 }}>✓</span>
-                  <span style={{ fontSize: 12, color: '#cbd5e1', lineHeight: 1.5 }}>{action}</span>
+                  <span style={{ fontSize: 12, color: isLight ? '#1e293b' : '#cbd5e1', lineHeight: 1.5, fontWeight: isLight ? 600 : 400 }}>{action}</span>
                 </div>
               ))}
             </div>
 
-            <div style={{ marginTop: 16, padding: '12px 14px', background: 'rgba(6,182,212,0.08)', border: '1px solid rgba(6,182,212,0.2)', borderRadius: 10 }}>
-              <div style={{ fontSize: 11, color: '#06b6d4', fontWeight: 700, marginBottom: 2 }}>WHO Guideline Reference</div>
-              <div style={{ fontSize: 11, color: '#94a3b8', lineHeight: 1.5 }}>
+            <div style={{ marginTop: 16, padding: '12px 14px', background: isLight ? 'rgba(2,132,199,0.08)' : 'rgba(6,182,212,0.08)', border: isLight ? '1px solid rgba(2,132,199,0.2)' : '1px solid rgba(6,182,212,0.2)', borderRadius: 10 }}>
+              <div style={{ fontSize: 11, color: isLight ? '#0284c7' : '#06b6d4', fontWeight: 700, marginBottom: 2 }}>WHO Guideline Reference</div>
+              <div style={{ fontSize: 11, color: isLight ? '#334155' : '#94a3b8', lineHeight: 1.5 }}>
                 Long-term exposure to PM2.5 above 5 μg/m³ annual mean significantly increases cardiovascular and pulmonary mortality.
               </div>
             </div>

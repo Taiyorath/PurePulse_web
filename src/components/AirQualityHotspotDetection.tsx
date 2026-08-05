@@ -70,9 +70,10 @@ const BASE_LOCATIONS: Record<string, [number, number]> = {
 interface HealthRiskSectionProps {
   avgAQI: number;
   selectedCity: string;
+  isLight?: boolean;
 }
 
-const HealthRiskSection: React.FC<HealthRiskSectionProps> = ({ avgAQI, selectedCity }) => {
+const HealthRiskSection: React.FC<HealthRiskSectionProps> = ({ avgAQI, selectedCity, isLight = false }) => {
   const [activeTab, setActiveTab] = useState<'asthma' | 'heart' | 'allergies' | 'sinus' | 'coldflu' | 'copd'>('asthma');
 
   const getRiskLevel = (aqi: number) => {
@@ -229,12 +230,12 @@ const HealthRiskSection: React.FC<HealthRiskSectionProps> = ({ avgAQI, selectedC
   const currentCondition = healthConditions[activeTab];
 
   return (
-    <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 16, padding: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.5)', marginBottom: 24 }}>
+    <div style={{ background: isLight ? '#ffffff' : '#0d1529', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b', borderRadius: 16, padding: '24px', boxShadow: isLight ? '0 4px 20px rgba(0,0,0,0.05)' : '0 20px 40px rgba(0,0,0,0.5)', marginBottom: 24 }}>
       <div style={{ marginBottom: 20 }}>
-        <h2 style={{ fontSize: 22, fontWeight: 800, color: '#f1f5f9', marginBottom: 4 }}>
+        <h2 style={{ fontSize: 22, fontWeight: 800, color: isLight ? '#0f172a' : '#f1f5f9', marginBottom: 4 }}>
           Prevent Health Problems: Understand Your Risks
         </h2>
-        <p style={{ color: '#06b6d4', fontWeight: 700, fontSize: 16 }}>{selectedCity}</p>
+        <p style={{ color: isLight ? '#0284c7' : '#06b6d4', fontWeight: 700, fontSize: 16 }}>{selectedCity}</p>
       </div>
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 24 }}>
@@ -256,9 +257,9 @@ const HealthRiskSection: React.FC<HealthRiskSectionProps> = ({ avgAQI, selectedC
               fontSize: 13,
               cursor: 'pointer',
               fontFamily: 'Inter, sans-serif',
-              background: activeTab === t.key ? 'linear-gradient(135deg, #06b6d4, #0891b2)' : '#111827',
-              color: activeTab === t.key ? 'white' : '#94a3b8',
-              border: activeTab === t.key ? 'none' : '1px solid #1e293b',
+              background: activeTab === t.key ? 'linear-gradient(135deg, #06b6d4, #0891b2)' : (isLight ? '#f1f5f9' : '#111827'),
+              color: activeTab === t.key ? 'white' : (isLight ? '#334155' : '#94a3b8'),
+              border: activeTab === t.key ? 'none' : (isLight ? '1px solid #cbd5e1' : '1px solid #1e293b'),
               display: 'flex', alignItems: 'center', gap: 6,
             }}
           >
@@ -268,7 +269,7 @@ const HealthRiskSection: React.FC<HealthRiskSectionProps> = ({ avgAQI, selectedC
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(240px, 280px) 1fr', gap: 20 }}>
-        <div style={{ background: '#111827', border: '1px solid #1e293b', borderRadius: 16, padding: 20, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ background: isLight ? '#f8fafc' : '#111827', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b', borderRadius: 16, padding: 20, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
           <svg viewBox="0 0 200 280" style={{ width: '100%', maxWidth: 180, marginBottom: 16 }}>
             <g opacity="0.3">
               <ellipse cx="50" cy="30" rx="20" ry="8" fill="#94a3b8">
@@ -312,10 +313,10 @@ const HealthRiskSection: React.FC<HealthRiskSectionProps> = ({ avgAQI, selectedC
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div>
-            <h3 style={{ fontSize: 20, fontWeight: 800, color: '#f1f5f9', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <h3 style={{ fontSize: 20, fontWeight: 800, color: isLight ? '#0f172a' : '#f1f5f9', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
               <span>{currentCondition.icon}</span> {currentCondition.title} Health Advisory
             </h3>
-            <div style={{ background: '#111827', border: '1px solid #1e293b', borderRadius: 12, padding: '14px 16px', color: '#94a3b8', fontSize: 13, lineHeight: 1.6 }}>
+            <div style={{ background: isLight ? '#f8fafc' : '#111827', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b', borderRadius: 12, padding: '14px 16px', color: isLight ? '#334155' : '#94a3b8', fontSize: 13, lineHeight: 1.6 }}>
               {currentCondition.symptoms}
             </div>
           </div>
@@ -324,7 +325,7 @@ const HealthRiskSection: React.FC<HealthRiskSectionProps> = ({ avgAQI, selectedC
               <h4 style={{ fontWeight: 700, color: '#22c55e', fontSize: 14, marginBottom: 8 }}>Do's :</h4>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {currentCondition.dos.map((item, idx) => (
-                  <li key={idx} style={{ fontSize: 12, color: '#cbd5e1', display: 'flex', gap: 6, lineHeight: 1.4 }}>
+                  <li key={idx} style={{ fontSize: 12, color: isLight ? '#1e293b' : '#cbd5e1', display: 'flex', gap: 6, lineHeight: 1.4, fontWeight: isLight ? 600 : 400 }}>
                     <span style={{ color: '#22c55e', fontWeight: 800 }}>✓</span> {item}
                   </li>
                 ))}
@@ -334,7 +335,7 @@ const HealthRiskSection: React.FC<HealthRiskSectionProps> = ({ avgAQI, selectedC
               <h4 style={{ fontWeight: 700, color: '#ef4444', fontSize: 14, marginBottom: 8 }}>Don'ts :</h4>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {currentCondition.donts.map((item, idx) => (
-                  <li key={idx} style={{ fontSize: 12, color: '#cbd5e1', display: 'flex', gap: 6, lineHeight: 1.4 }}>
+                  <li key={idx} style={{ fontSize: 12, color: isLight ? '#1e293b' : '#cbd5e1', display: 'flex', gap: 6, lineHeight: 1.4, fontWeight: isLight ? 600 : 400 }}>
                     <span style={{ color: '#ef4444', fontWeight: 800 }}>✕</span> {item}
                   </li>
                 ))}
@@ -869,7 +870,7 @@ const AirQualityHotspotDetection: React.FC = () => {
         </div>
 
         {/* ── HEALTH RISK & DISEASE PREVENTATIVE SECTION (PERSON MODEL) ─────── */}
-        <HealthRiskSection avgAQI={avgAQI} selectedCity={selectedCity} />
+        <HealthRiskSection avgAQI={avgAQI} selectedCity={selectedCity} isLight={isLight} />
 
       </div>
     </div>
