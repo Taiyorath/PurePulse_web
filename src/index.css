@@ -54,39 +54,96 @@
   --text-muted:    #64748b;
 }
 
-/* Light mode hardcoded background overrides */
-[data-theme="light"] div[style*="background: #060d1b"],
-[data-theme="light"] div[style*="background: '#060d1b'"],
-html.light div[style*="#060d1b"] {
+/* Comprehensive Light Mode CSS Overrides */
+html.light, html.light body, [data-theme="light"], [data-theme="light"] body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+html.light div, [data-theme="light"] div {
+  color: inherit;
+}
+
+html.light header, [data-theme="light"] header {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-bottom: 1px solid #cbd5e1 !important;
+  backdrop-filter: blur(20px) !important;
+}
+
+html.light aside, [data-theme="light"] aside {
+  background-color: #ffffff !important;
+  border-right: 1px solid #cbd5e1 !important;
+}
+
+html.light main, [data-theme="light"] main {
+  background-color: transparent !important;
+}
+
+/* Light mode card overrides */
+html.light .glass-card, [data-theme="light"] .glass-card,
+html.light .aqi-hero, [data-theme="light"] .aqi-hero,
+html.light div[style*="background: #0d1529"], [data-theme="light"] div[style*="background: #0d1529"],
+html.light div[style*="background: '#0d1529'"], [data-theme="light"] div[style*="background: '#0d1529'"],
+html.light div[style*="background: rgb(13, 21, 41)"], [data-theme="light"] div[style*="background: rgb(13, 21, 41)"],
+html.light div[style*="background: rgba(13, 21, 41"], [data-theme="light"] div[style*="background: rgba(13, 21, 41"] {
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06) !important;
+}
+
+html.light div[style*="background: #111827"], [data-theme="light"] div[style*="background: #111827"],
+html.light div[style*="background: '#111827'"], [data-theme="light"] div[style*="background: '#111827'"],
+html.light div[style*="background: rgb(17, 24, 39)"], [data-theme="light"] div[style*="background: rgb(17, 24, 39)"] {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.light div[style*="background: #060d1b"], [data-theme="light"] div[style*="background: #060d1b"],
+html.light div[style*="background: '#060d1b'"], [data-theme="light"] div[style*="background: '#060d1b'"],
+html.light div[style*="background: rgb(6, 13, 27)"], [data-theme="light"] div[style*="background: rgb(6, 13, 27)"] {
   background-color: #f8fafc !important;
 }
 
-[data-theme="light"] div[style*="background: #0d1529"],
-[data-theme="light"] div[style*="background: '#0d1529'"],
-html.light div[style*="#0d1529"] {
+/* Light mode text colors */
+html.light h1, html.light h2, html.light h3, html.light h4, html.light h5, html.light h6,
+[data-theme="light"] h1, [data-theme="light"] h2, [data-theme="light"] h3, [data-theme="light"] h4, [data-theme="light"] h5, [data-theme="light"] h6 {
+  color: #0f172a !important;
+}
+
+html.light p, [data-theme="light"] p {
+  color: #475569 !important;
+}
+
+html.light span[style*="color: #f1f5f9"], [data-theme="light"] span[style*="color: #f1f5f9"],
+html.light div[style*="color: #f1f5f9"], [data-theme="light"] div[style*="color: #f1f5f9"],
+html.light span[style*="color: #e2e8f0"], [data-theme="light"] span[style*="color: #e2e8f0"],
+html.light div[style*="color: #e2e8f0"], [data-theme="light"] div[style*="color: #e2e8f0"],
+html.light span[style*="color: #cbd5e1"], [data-theme="light"] span[style*="color: #cbd5e1"] {
+  color: #0f172a !important;
+}
+
+html.light span[style*="color: #94a3b8"], [data-theme="light"] span[style*="color: #94a3b8"],
+html.light div[style*="color: #94a3b8"], [data-theme="light"] div[style*="color: #94a3b8"],
+html.light span[style*="color: #64748b"], [data-theme="light"] span[style*="color: #64748b"],
+html.light div[style*="color: #64748b"], [data-theme="light"] div[style*="color: #64748b"] {
+  color: #475569 !important;
+}
+
+/* Light mode inputs & buttons */
+html.light input, [data-theme="light"] input,
+html.light select, [data-theme="light"] select {
   background-color: #ffffff !important;
-  border-color: #cbd5e1 !important;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.06) !important;
-}
-
-[data-theme="light"] div[style*="background: #111827"],
-[data-theme="light"] div[style*="background: '#111827'"],
-html.light div[style*="#111827"] {
-  background-color: #f1f5f9 !important;
-  border-color: #cbd5e1 !important;
-}
-
-[data-theme="light"] select,
-html.light select,
-[data-theme="light"] input,
-html.light input {
-  background-color: #f1f5f9 !important;
   color: #0f172a !important;
   border-color: #cbd5e1 !important;
 }
 
-[data-theme="light"] h1, [data-theme="light"] h2, [data-theme="light"] h3, [data-theme="light"] h4,
-html.light h1, html.light h2, html.light h3, html.light h4 {
+html.light button.btn-ghost, [data-theme="light"] button.btn-ghost {
+  color: #334155 !important;
+}
+
+html.light button.btn-ghost:hover, [data-theme="light"] button.btn-ghost:hover {
+  background-color: #e2e8f0 !important;
   color: #0f172a !important;
 }
 

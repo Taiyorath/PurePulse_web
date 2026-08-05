@@ -208,8 +208,18 @@ const FeatureCard: React.FC<{
 const Dashboard: React.FC<DashboardProps> = ({ user, profile }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => (localStorage.getItem('pp_theme') as any) || 'dark');
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    const handleTheme = (e: any) => {
+      const next = e.detail?.theme || localStorage.getItem('pp_theme') || 'dark';
+      setTheme(next);
+    };
+    window.addEventListener('pp_theme_changed', handleTheme);
+    return () => window.removeEventListener('pp_theme_changed', handleTheme);
+  }, []);
 
   // ── AQI & Location state
   const [aqiData, setAqiData] = useState<AQIStation | null>(null);
@@ -386,10 +396,12 @@ const Dashboard: React.FC<DashboardProps> = ({ user, profile }) => {
     { key: 'no2',  value: aqiData.no2,  color: '#a855f7' },
   ] : [];
 
+  const isLight = theme === 'light';
+
   return (
-    <div style={{ minHeight: '100vh', background: '#060d1b', display: 'flex', fontFamily: 'Inter, sans-serif' }}>
+    <div style={{ minHeight: '100vh', background: isLight ? '#f8fafc' : '#060d1b', color: isLight ? '#0f172a' : '#f1f5f9', display: 'flex', fontFamily: 'Inter, sans-serif', transition: 'background-color 0.3s ease' }}>
       {/* Background mesh */}
-      <div style={{ position: 'fixed', inset: 0, background: 'radial-gradient(ellipse 60% 40% at 10% 0%, rgba(6,182,212,0.05) 0%, transparent 60%), #060d1b', pointerEvents: 'none', zIndex: 0 }} />
+      <div style={{ position: 'fixed', inset: 0, background: isLight ? 'radial-gradient(ellipse 60% 40% at 10% 0%, rgba(2,132,199,0.06) 0%, transparent 60%), #f8fafc' : 'radial-gradient(ellipse 60% 40% at 10% 0%, rgba(6,182,212,0.05) 0%, transparent 60%), #060d1b', pointerEvents: 'none', zIndex: 0 }} />
 
       {/* ── SIDEBAR ─────────────────────────────────────────────── */}
       <AnimatePresence>
@@ -410,13 +422,13 @@ const Dashboard: React.FC<DashboardProps> = ({ user, profile }) => {
               animate={{ x: sidebarOpen ? 0 : -240 }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               style={{
-                width: 220, flexShrink: 0, background: '#0d1529', borderRight: '1px solid #1e293b',
+                width: 220, flexShrink: 0, background: isLight ? '#ffffff' : '#0d1529', borderRight: isLight ? '1px solid #e2e8f0' : '1px solid #1e293b',
                 display: 'flex', flexDirection: 'column', position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 50, overflowY: 'auto'
               }}
               className="lg:translate-x-0 lg:relative lg:!transform-none"
             >
               {/* Logo */}
-              <div style={{ padding: '18px 16px', borderBottom: '1px solid #1e293b' }}>
+              <div style={{ padding: '18px 16px', borderBottom: isLight ? '1px solid #e2e8f0' : '1px solid #1e293b' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <img
                     src="/assets/purepulse_logo.png"
@@ -424,8 +436,8 @@ const Dashboard: React.FC<DashboardProps> = ({ user, profile }) => {
                     style={{ width: 36, height: 36, borderRadius: 10, objectFit: 'cover', filter: 'drop-shadow(0 0 8px rgba(6,182,212,0.4))' }}
                   />
                   <div>
-                    <div style={{ fontSize: 15, fontWeight: 800, color: '#f1f5f9', letterSpacing: '-0.01em' }}>PurePulse</div>
-                    <div style={{ fontSize: 9, color: '#06b6d4', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Infothon 2025</div>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: isLight ? '#0f172a' : '#f1f5f9', letterSpacing: '-0.01em' }}>PurePulse</div>
+                    <div style={{ fontSize: 9, color: isLight ? '#0284c7' : '#06b6d4', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Infothon 2025</div>
                   </div>
                 </div>
               </div>
@@ -478,18 +490,18 @@ const Dashboard: React.FC<DashboardProps> = ({ user, profile }) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh', marginLeft: 0, position: 'relative', zIndex: 1 }} className="lg:ml-[220px]">
 
         {/* Top bar */}
-        <header style={{ background: 'rgba(13,21,41,0.8)', backdropFilter: 'blur(20px)', borderBottom: '1px solid #1e293b', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 30, gap: 16 }}>
+        <header style={{ background: isLight ? 'rgba(255,255,255,0.9)' : 'rgba(13,21,41,0.8)', backdropFilter: 'blur(20px)', borderBottom: isLight ? '1px solid #e2e8f0' : '1px solid #1e293b', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 30, gap: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             {/* Mobile menu */}
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="lg:hidden btn-ghost"
-              style={{ padding: '6px 8px' }}
+              className="btn-ghost"
+              style={{ padding: '6px 8px', color: isLight ? '#0f172a' : '#f1f5f9' }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
             </button>
             <div>
-              <h1 style={{ fontSize: 15, fontWeight: 700, color: '#f1f5f9' }}>Dashboard</h1>
+              <h1 style={{ fontSize: 15, fontWeight: 700, color: isLight ? '#0f172a' : '#f1f5f9' }}>Dashboard</h1>
               {lastUpdated && (
                 <div className="live-pulse" style={{ fontSize: 11, color: '#475569' }}>
                   Live feed · {lastUpdated.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
@@ -587,12 +599,12 @@ const Dashboard: React.FC<DashboardProps> = ({ user, profile }) => {
 
           {/* ── HERO GRAPHIC BANNER ───────────────────────────────── */}
           <div style={{
-            background: 'linear-gradient(135deg, rgba(13,21,41,0.9), rgba(17,24,39,0.9))',
-            border: '1px solid #1e293b',
+            background: isLight ? '#ffffff' : 'linear-gradient(135deg, rgba(13,21,41,0.9), rgba(17,24,39,0.9))',
+            border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b',
             borderRadius: 20,
             padding: '24px',
             marginBottom: 24,
-            boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
+            boxShadow: isLight ? '0 10px 30px rgba(0,0,0,0.06)' : '0 20px 40px rgba(0,0,0,0.5)',
             display: 'grid',
             gridTemplateColumns: '1fr',
             gap: 20,
@@ -604,28 +616,28 @@ const Dashboard: React.FC<DashboardProps> = ({ user, profile }) => {
                 <img src="/assets/purepulse_logo.png" alt="PurePulse Logo" style={{ width: 34, height: 34, borderRadius: 8 }} />
                 <span className="badge badge-cyan" style={{ fontSize: 11, padding: '3px 10px' }}>INFOTHON 2025</span>
               </div>
-              <h1 style={{ fontSize: 28, fontWeight: 900, color: '#f1f5f9', letterSpacing: '-0.02em', lineHeight: 1.2, margin: '0 0 10px 0' }}>
-                Hyperlocal Air Quality <span style={{ background: 'linear-gradient(135deg, #06b6d4, #38bdf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Monitor</span>
+              <h1 style={{ fontSize: 28, fontWeight: 900, color: isLight ? '#0f172a' : '#f1f5f9', letterSpacing: '-0.02em', lineHeight: 1.2, margin: '0 0 10px 0' }}>
+                Hyperlocal Air Quality <span style={{ background: isLight ? 'linear-gradient(135deg, #0284c7, #38bdf8)' : 'linear-gradient(135deg, #06b6d4, #38bdf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Monitor</span>
               </h1>
-              <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.6, margin: '0 0 16px 0' }}>
+              <p style={{ fontSize: 13, color: isLight ? '#475569' : '#94a3b8', lineHeight: 1.6, margin: '0 0 16px 0' }}>
                 IoT + Government API pipeline delivering real-time AQI data with ML-based 24-hr forecasting and AI-driven personalized health alerts.
               </p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                 {['IoT Sensors', 'Govt APIs', 'Python ML', 'AI Health Alerts'].map((chip) => (
-                  <span key={chip} style={{ fontSize: 11, padding: '4px 10px', background: '#111827', border: '1px solid #1e293b', borderRadius: 8, color: '#cbd5e1', fontWeight: 600 }}>
+                  <span key={chip} style={{ fontSize: 11, padding: '4px 10px', background: isLight ? '#f1f5f9' : '#111827', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b', borderRadius: 8, color: isLight ? '#334155' : '#cbd5e1', fontWeight: 600 }}>
                     {chip}
                   </span>
                 ))}
               </div>
             </div>
 
-            <div style={{ position: 'relative', height: 200, borderRadius: 14, overflow: 'hidden', border: '1px solid #1e293b' }}>
+            <div style={{ position: 'relative', height: 200, borderRadius: 14, overflow: 'hidden', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b' }}>
               <img
                 src="/assets/hero_air_quality.png"
                 alt="Air Quality Visualization"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
-              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(13,21,41,0.6) 0%, transparent 100%)' }} />
+              <div style={{ position: 'absolute', inset: 0, background: isLight ? 'linear-gradient(to right, rgba(255,255,255,0.4) 0%, transparent 100%)' : 'linear-gradient(to right, rgba(13,21,41,0.6) 0%, transparent 100%)' }} />
             </div>
           </div>
 
@@ -633,7 +645,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, profile }) => {
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} style={{ marginBottom: 24 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
               <div>
-                <h2 style={{ fontSize: 22, fontWeight: 800, color: '#f1f5f9', letterSpacing: '-0.02em', marginBottom: 4 }}>
+                <h2 style={{ fontSize: 22, fontWeight: 800, color: isLight ? '#0f172a' : '#f1f5f9', letterSpacing: '-0.02em', marginBottom: 4 }}>
                   Good {currentTime.getHours() < 12 ? 'morning' : currentTime.getHours() < 18 ? 'afternoon' : 'evening'}, {profile.name.split(' ')[0]} 👋
                 </h2>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
