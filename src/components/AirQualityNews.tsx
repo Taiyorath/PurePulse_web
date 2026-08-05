@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
+import { useTheme } from '../hooks/useTheme';
 
 const extractVideoId = (url: string): string => {
   const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/);
@@ -25,6 +26,7 @@ interface AirQualityNewsProps {
 
 const AirQualityNews: React.FC<AirQualityNewsProps> = ({ initialTab = 'all' }) => {
   const navigate = useNavigate();
+  const { theme, isLight } = useTheme();
   const [currentTab, setCurrentTab] = useState<'all' | 'articles' | 'videos'>(initialTab);
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -194,22 +196,24 @@ const AirQualityNews: React.FC<AirQualityNewsProps> = ({ initialTab = 'all' }) =
       ? (item.thumbnail || (videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : 'https://images.unsplash.com/photo-1584467735871-8e85353a8413?auto=format&fit=crop&w=600&q=80'))
       : (item.urlToImage || 'https://images.unsplash.com/photo-1584467735871-8e85353a8413?auto=format&fit=crop&w=600&q=80');
 
+    const isLight = theme === 'light';
+
     return (
       <div
         key={item.id}
         style={{
-          background: '#0d1529',
-          border: '1px solid #1e293b',
+          background: isLight ? '#ffffff' : '#0d1529',
+          border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b',
           borderRadius: 16,
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
-          boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
+          boxShadow: isLight ? '0 4px 20px rgba(0,0,0,0.05)' : '0 10px 30px rgba(0,0,0,0.4)',
           transition: 'all 0.2s',
         }}
       >
         {/* Media / Thumbnail */}
-        <div style={{ position: 'relative', width: '100%', height: 180, background: '#111827', overflow: 'hidden' }}>
+        <div style={{ position: 'relative', width: '100%', height: 180, background: isLight ? '#f1f5f9' : '#111827', overflow: 'hidden' }}>
           <img
             src={imgUrl}
             alt={item.title}
@@ -260,12 +264,12 @@ const AirQualityNews: React.FC<AirQualityNewsProps> = ({ initialTab = 'all' }) =
 
         {/* Details */}
         <div style={{ padding: '18px 20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-          <div style={{ fontSize: 11, color: '#06b6d4', marginBottom: 6, fontWeight: 700, display: 'flex', justifyContent: 'space-between' }}>
+          <div style={{ fontSize: 11, color: isLight ? '#0284c7' : '#06b6d4', marginBottom: 6, fontWeight: 700, display: 'flex', justifyContent: 'space-between' }}>
             <span>{item.source}</span>
-            <span style={{ color: '#64748b' }}>{formatRelativeDate(item.date)}</span>
+            <span style={{ color: isLight ? '#64748b' : '#64748b' }}>{formatRelativeDate(item.date)}</span>
           </div>
 
-          <h3 style={{ fontSize: 15, fontWeight: 800, color: '#f1f5f9', marginBottom: 8, lineHeight: 1.4 }}>
+          <h3 style={{ fontSize: 15, fontWeight: 800, color: isLight ? '#0f172a' : '#f1f5f9', marginBottom: 8, lineHeight: 1.4 }}>
             {item.title}
           </h3>
 
@@ -292,21 +296,21 @@ const AirQualityNews: React.FC<AirQualityNewsProps> = ({ initialTab = 'all' }) =
   }, []);
 
   return (
-    <div style={{ minHeight: '100vh', background: '#060d1b', color: '#f1f5f9', fontFamily: 'Inter, sans-serif', padding: '24px 20px', position: 'relative' }}>
+    <div style={{ minHeight: '100vh', background: isLight ? '#f8fafc' : '#060d1b', color: isLight ? '#0f172a' : '#f1f5f9', fontFamily: 'Inter, sans-serif', padding: '24px 20px', position: 'relative', transition: 'background-color 0.3s ease' }}>
       {/* Background Glow Mesh */}
-      <div style={{ position: 'fixed', inset: 0, background: 'radial-gradient(ellipse 70% 50% at 30% 0%, rgba(6,182,212,0.06) 0%, transparent 70%), #060d1b', pointerEvents: 'none', zIndex: 0 }} />
+      <div style={{ position: 'fixed', inset: 0, background: isLight ? 'radial-gradient(ellipse 70% 50% at 30% 0%, rgba(2,132,199,0.06) 0%, transparent 70%), #f8fafc' : 'radial-gradient(ellipse 70% 50% at 30% 0%, rgba(6,182,212,0.06) 0%, transparent 70%), #060d1b', pointerEvents: 'none', zIndex: 0 }} />
 
       <div style={{ maxWidth: 1160, margin: '0 auto', position: 'relative', zIndex: 1 }}>
 
         {/* ── HEADER ────────────────────────────────────────────────────────── */}
-        <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 16, padding: '20px 24px', marginBottom: 24, boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>
+        <div style={{ background: isLight ? '#ffffff' : '#0d1529', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b', borderRadius: 16, padding: '20px 24px', marginBottom: 24, boxShadow: isLight ? '0 10px 30px rgba(0,0,0,0.05)' : '0 20px 40px rgba(0,0,0,0.5)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
               <button
                 onClick={() => navigate('/')}
                 style={{
-                  width: 38, height: 38, borderRadius: 10, background: '#111827', border: '1px solid #1e293b',
-                  color: '#06b6d4', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                  width: 38, height: 38, borderRadius: 10, background: isLight ? '#f1f5f9' : '#111827', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b',
+                  color: isLight ? '#0284c7' : '#06b6d4', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
                 }}
                 title="Back to Dashboard"
               >
@@ -315,11 +319,11 @@ const AirQualityNews: React.FC<AirQualityNewsProps> = ({ initialTab = 'all' }) =
                 </svg>
               </button>
               <div>
-                <h1 style={{ fontSize: 22, fontWeight: 800, color: '#f1f5f9', letterSpacing: '-0.02em', margin: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
+                <h1 style={{ fontSize: 22, fontWeight: 800, color: isLight ? '#0f172a' : '#f1f5f9', letterSpacing: '-0.02em', margin: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
                   🌬️ Live Air Quality News Feed
                   <span className="badge badge-cyan" style={{ fontSize: 11, padding: '3px 8px' }}>Real-Time RSS Stream</span>
                 </h1>
-                <p style={{ fontSize: 13, color: '#64748b', marginTop: 2, margin: 0 }}>
+                <p style={{ fontSize: 13, color: isLight ? '#475569' : '#64748b', marginTop: 2, margin: 0 }}>
                   Real-time Google News RSS articles, WHO updates, clean energy studies, and pulmonologist guides
                 </p>
               </div>
@@ -343,9 +347,9 @@ const AirQualityNews: React.FC<AirQualityNewsProps> = ({ initialTab = 'all' }) =
                       fontWeight: 700,
                       cursor: 'pointer',
                       fontFamily: 'Inter, sans-serif',
-                      background: currentTab === t.key ? 'linear-gradient(135deg, #06b6d4, #0891b2)' : '#111827',
-                      color: currentTab === t.key ? 'white' : '#94a3b8',
-                      border: currentTab === t.key ? 'none' : '1px solid #1e293b',
+                      background: currentTab === t.key ? 'linear-gradient(135deg, #06b6d4, #0891b2)' : isLight ? '#f1f5f9' : '#111827',
+                      color: currentTab === t.key ? 'white' : isLight ? '#334155' : '#94a3b8',
+                      border: currentTab === t.key ? 'none' : isLight ? '1px solid #cbd5e1' : '1px solid #1e293b',
                     }}
                   >
                     {t.label} ({t.count})
@@ -358,10 +362,10 @@ const AirQualityNews: React.FC<AirQualityNewsProps> = ({ initialTab = 'all' }) =
                 disabled={loading}
                 style={{
                   padding: '8px 14px',
-                  background: '#111827',
-                  border: '1px solid #1e293b',
+                  background: isLight ? '#f1f5f9' : '#111827',
+                  border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b',
                   borderRadius: 10,
-                  color: '#06b6d4',
+                  color: isLight ? '#0284c7' : '#06b6d4',
                   fontWeight: 700,
                   fontSize: 13,
                   cursor: loading ? 'not-allowed' : 'pointer',

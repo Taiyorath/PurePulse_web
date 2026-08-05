@@ -5,6 +5,7 @@ import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import 'leaflet/dist/leaflet.css';
 import ThemeToggle from './ThemeToggle';
+import { useTheme } from '../hooks/useTheme';
 
 const { BaseLayer } = LayersControl;
 
@@ -412,7 +413,7 @@ const MapController: React.FC<{ center: [number, number]; zoom: number }> = ({ c
 const AirQualityHotspotDetection: React.FC = () => {
   const navigate = useNavigate();
 
-  const [theme, setTheme] = useState<'dark' | 'light'>(() => (localStorage.getItem('pp_theme') as any) || 'dark');
+  const { theme, isLight } = useTheme();
   const [selectedCity, setSelectedCity] = useState<string>(() => localStorage.getItem('pp_city') || 'Mysuru');
   const [cityCenter, setCityCenter] = useState<[number, number]>(() => {
     const lat = localStorage.getItem('pp_lat');
@@ -428,14 +429,6 @@ const AirQualityHotspotDetection: React.FC = () => {
   const [stations, setStations] = useState<Station[]>([]);
   const [loading, setLoading] = useState(false);
   const [lastUpdate, setLastUpdate] = useState(new Date());
-
-  useEffect(() => {
-    const handleTheme = (e: any) => {
-      setTheme(e.detail?.theme || localStorage.getItem('pp_theme') || 'dark');
-    };
-    window.addEventListener('pp_theme_changed', handleTheme);
-    return () => window.removeEventListener('pp_theme_changed', handleTheme);
-  }, []);
 
   // Listen to global location change events from search bar or location modal
   useEffect(() => {

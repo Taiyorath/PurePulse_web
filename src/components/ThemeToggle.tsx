@@ -1,34 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { useTheme } from '../hooks/useTheme';
 
 export const ThemeToggle: React.FC = () => {
-  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
-    return (localStorage.getItem('pp_theme') as 'dark' | 'light') || 'dark';
-  });
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    document.body.setAttribute('data-theme', theme);
-    if (theme === 'light') {
-      document.documentElement.classList.add('light');
-      document.documentElement.classList.remove('dark');
-      document.body.classList.add('light');
-      document.body.classList.remove('dark');
-    } else {
-      document.documentElement.classList.add('dark');
-      document.documentElement.classList.remove('light');
-      document.body.classList.add('dark');
-      document.body.classList.remove('light');
-    }
-  }, [theme]);
-
-  const toggleTheme = () => {
-    const nextTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(nextTheme);
-    localStorage.setItem('pp_theme', nextTheme);
-    document.documentElement.setAttribute('data-theme', nextTheme);
-    document.body.setAttribute('data-theme', nextTheme);
-    window.dispatchEvent(new CustomEvent('pp_theme_changed', { detail: { theme: nextTheme } }));
-  };
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <button

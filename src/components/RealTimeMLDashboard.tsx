@@ -114,7 +114,8 @@ const getRiskColor = (level: string) => {
 const RealTimeMLDashboard: React.FC = () => {
   const navigate = useNavigate();
 
-  // State management
+  // Theme & State management
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => (localStorage.getItem('pp_theme') as any) || 'dark');
   const [selectedCity, setSelectedCity] = useState<CityType>(() => localStorage.getItem('pp_city') || 'Mysuru');
   const [searchQuery, setSearchQuery] = useState<string>(() => localStorage.getItem('pp_city') || 'Mysuru');
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -127,6 +128,14 @@ const RealTimeMLDashboard: React.FC = () => {
   const [updateInterval, setUpdateInterval] = useState(60);
   const [predictionHorizon, setPredictionHorizon] = useState<6 | 12 | 24>(6);
   const [isUpdating, setIsUpdating] = useState(false);
+
+  useEffect(() => {
+    const handleTheme = (e: any) => {
+      setTheme(e.detail?.theme || localStorage.getItem('pp_theme') || 'dark');
+    };
+    window.addEventListener('pp_theme_changed', handleTheme);
+    return () => window.removeEventListener('pp_theme_changed', handleTheme);
+  }, []);
 
   // Services
   const mlEngine = useRef(new MLForecastingEngine());
@@ -376,22 +385,24 @@ const RealTimeMLDashboard: React.FC = () => {
     );
   }
 
+  const isLight = theme === 'light';
+
   return (
-    <div style={{ minHeight: '100vh', background: '#060d1b', color: '#f1f5f9', fontFamily: 'Inter, sans-serif', padding: '24px 20px', position: 'relative' }}>
+    <div style={{ minHeight: '100vh', background: isLight ? '#f8fafc' : '#060d1b', color: isLight ? '#0f172a' : '#f1f5f9', fontFamily: 'Inter, sans-serif', padding: '24px 20px', position: 'relative', transition: 'background-color 0.3s ease' }}>
       {/* Background Glow Mesh */}
-      <div style={{ position: 'fixed', inset: 0, background: 'radial-gradient(ellipse 70% 50% at 30% 0%, rgba(6,182,212,0.06) 0%, transparent 70%), #060d1b', pointerEvents: 'none', zIndex: 0 }} />
+      <div style={{ position: 'fixed', inset: 0, background: isLight ? 'radial-gradient(ellipse 70% 50% at 30% 0%, rgba(2,132,199,0.06) 0%, transparent 70%), #f8fafc' : 'radial-gradient(ellipse 70% 50% at 30% 0%, rgba(6,182,212,0.06) 0%, transparent 70%), #060d1b', pointerEvents: 'none', zIndex: 0 }} />
 
       <div style={{ maxWidth: 1200, margin: '0 auto', position: 'relative', zIndex: 1 }}>
 
         {/* ── HEADER ────────────────────────────────────────────────────────── */}
-        <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 16, padding: '20px 24px', marginBottom: 24, boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>
+        <div style={{ background: isLight ? '#ffffff' : '#0d1529', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b', borderRadius: 16, padding: '20px 24px', marginBottom: 24, boxShadow: isLight ? '0 10px 30px rgba(0,0,0,0.05)' : '0 20px 40px rgba(0,0,0,0.5)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16, marginBottom: 20 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
               <button
                 onClick={() => navigate('/')}
                 style={{
-                  width: 38, height: 38, borderRadius: 10, background: '#111827', border: '1px solid #1e293b',
-                  color: '#06b6d4', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                  width: 38, height: 38, borderRadius: 10, background: isLight ? '#f1f5f9' : '#111827', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b',
+                  color: isLight ? '#0284c7' : '#06b6d4', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
                   transition: 'all 0.2s',
                 }}
                 title="Back to Dashboard"
@@ -401,20 +412,20 @@ const RealTimeMLDashboard: React.FC = () => {
                 </svg>
               </button>
               <div>
-                <h1 style={{ fontSize: 22, fontWeight: 800, color: '#f1f5f9', letterSpacing: '-0.02em', margin: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
+                <h1 style={{ fontSize: 22, fontWeight: 800, color: isLight ? '#0f172a' : '#f1f5f9', letterSpacing: '-0.02em', margin: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
                   🤖 ML Air Quality Intelligence
                   <span className="badge badge-cyan" style={{ fontSize: 11, padding: '3px 8px' }}>AI Model v2.4</span>
                 </h1>
-                <p style={{ fontSize: 13, color: '#64748b', marginTop: 2, margin: 0 }}>
+                <p style={{ fontSize: 13, color: isLight ? '#475569' : '#64748b', marginTop: 2, margin: 0 }}>
                   Real-time neural forecasting engine & temporal sensor risk analytics
                 </p>
               </div>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', background: '#111827', border: '1px solid #1e293b', borderRadius: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', background: isLight ? '#f1f5f9' : '#111827', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b', borderRadius: 10 }}>
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: connectionStatus === 'connected' ? '#22c55e' : '#ef4444', boxShadow: connectionStatus === 'connected' ? '0 0 8px #22c55e' : 'none' }} />
-                <span style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8' }}>
+                <span style={{ fontSize: 12, fontWeight: 600, color: isLight ? '#334155' : '#94a3b8' }}>
                   {connectionStatus === 'connected' ? 'Live Stream Active' : 'Disconnected'}
                 </span>
               </div>
@@ -471,8 +482,8 @@ const RealTimeMLDashboard: React.FC = () => {
                 {showSuggestions && (
                   <div style={{
                     position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 6,
-                    background: '#0d1529', border: '1px solid #1e293b', borderRadius: 12,
-                    overflow: 'hidden', zIndex: 100, boxShadow: '0 20px 40px rgba(0,0,0,0.6)',
+                    background: isLight ? '#ffffff' : '#0d1529', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b', borderRadius: 12,
+                    overflow: 'hidden', zIndex: 100, boxShadow: isLight ? '0 10px 30px rgba(0,0,0,0.1)' : '0 20px 40px rgba(0,0,0,0.6)',
                   }}>
                     {cityList
                       .filter(c => c.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -486,13 +497,13 @@ const RealTimeMLDashboard: React.FC = () => {
                             setShowSuggestions(false);
                           }}
                           style={{
-                            padding: '9px 14px', fontSize: 13, color: '#f1f5f9', fontWeight: 600,
-                            cursor: 'pointer', borderBottom: '1px solid #111827', display: 'flex', alignItems: 'center', gap: 8,
+                            padding: '9px 14px', fontSize: 13, color: isLight ? '#0f172a' : '#f1f5f9', fontWeight: 600,
+                            cursor: 'pointer', borderBottom: isLight ? '1px solid #f1f5f9' : '1px solid #111827', display: 'flex', alignItems: 'center', gap: 8,
                           }}
-                          onMouseEnter={(e) => (e.currentTarget.style.background = '#111827')}
+                          onMouseEnter={(e) => (e.currentTarget.style.background = isLight ? '#f1f5f9' : '#111827')}
                           onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
                         >
-                          <span style={{ color: '#06b6d4' }}>📍</span> {c}
+                          <span style={{ color: isLight ? '#0284c7' : '#06b6d4' }}>📍</span> {c}
                         </div>
                       ))}
                     {searchQuery.trim() && (
@@ -502,8 +513,8 @@ const RealTimeMLDashboard: React.FC = () => {
                           setShowSuggestions(false);
                         }}
                         style={{
-                          padding: '9px 14px', fontSize: 13, color: '#06b6d4', fontWeight: 700,
-                          cursor: 'pointer', background: 'rgba(6,182,212,0.08)', display: 'flex', alignItems: 'center', gap: 8,
+                          padding: '9px 14px', fontSize: 13, color: isLight ? '#0284c7' : '#06b6d4', fontWeight: 700,
+                          cursor: 'pointer', background: isLight ? 'rgba(2,132,199,0.08)' : 'rgba(6,182,212,0.08)', display: 'flex', alignItems: 'center', gap: 8,
                         }}
                       >
                         <span>🔍</span> Search global location "{searchQuery}"
@@ -516,11 +527,11 @@ const RealTimeMLDashboard: React.FC = () => {
 
             {/* Refresh Rate */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 600 }}>⚡ Stream:</span>
+              <span style={{ fontSize: 12, color: isLight ? '#475569' : '#94a3b8', fontWeight: 600 }}>⚡ Stream:</span>
               <select
                 value={updateInterval}
                 onChange={(e) => setUpdateInterval(Number(e.target.value))}
-                style={{ background: '#111827', border: '1px solid #1e293b', borderRadius: 8, padding: '6px 12px', color: '#f1f5f9', fontSize: 13, outline: 'none', cursor: 'pointer' }}
+                style={{ background: isLight ? '#f1f5f9' : '#111827', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b', borderRadius: 8, padding: '6px 12px', color: isLight ? '#0f172a' : '#f1f5f9', fontSize: 13, outline: 'none', cursor: 'pointer' }}
               >
                 <option value={30}>Every 30 sec</option>
                 <option value={60}>Every 1 min</option>
@@ -530,11 +541,11 @@ const RealTimeMLDashboard: React.FC = () => {
 
             {/* Forecast Horizon */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 600 }}>📈 Model Horizon:</span>
+              <span style={{ fontSize: 12, color: isLight ? '#475569' : '#94a3b8', fontWeight: 600 }}>📈 Model Horizon:</span>
               <select
                 value={predictionHorizon}
                 onChange={(e) => setPredictionHorizon(Number(e.target.value) as 6 | 12 | 24)}
-                style={{ background: '#111827', border: '1px solid #1e293b', borderRadius: 8, padding: '6px 12px', color: '#f1f5f9', fontSize: 13, outline: 'none', cursor: 'pointer' }}
+                style={{ background: isLight ? '#f1f5f9' : '#111827', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b', borderRadius: 8, padding: '6px 12px', color: isLight ? '#0f172a' : '#f1f5f9', fontSize: 13, outline: 'none', cursor: 'pointer' }}
               >
                 <option value={6}>6 Hours (87% Accuracy)</option>
                 <option value={12}>12 Hours (73% Accuracy)</option>
@@ -560,54 +571,54 @@ const RealTimeMLDashboard: React.FC = () => {
         {/* ── METRICS OVERVIEW STRIP ────────────────────────────────────────── */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14, marginBottom: 24 }}>
           {/* City Average */}
-          <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 14, padding: '16px 20px' }}>
-            <div style={{ fontSize: 11, color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
+          <div style={{ background: isLight ? '#ffffff' : '#0d1529', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b', borderRadius: 14, padding: '16px 20px', boxShadow: isLight ? '0 4px 14px rgba(0,0,0,0.04)' : 'none' }}>
+            <div style={{ fontSize: 11, color: isLight ? '#64748b' : '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
               {selectedCity} City-Wide AQI
             </div>
             <div style={{ fontSize: 32, fontWeight: 900, color: cityWideAQI <= 50 ? '#22c55e' : cityWideAQI <= 100 ? '#eab308' : '#ef4444', lineHeight: 1 }}>
               {cityWideAQI}
             </div>
-            <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>Average across {stations.length} sensors</div>
+            <div style={{ fontSize: 12, color: isLight ? '#475569' : '#94a3b8', marginTop: 4 }}>Average across {stations.length} sensors</div>
           </div>
 
           {/* Risk Zones */}
-          <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 14, padding: '16px 20px' }}>
+          <div style={{ background: isLight ? '#ffffff' : '#0d1529', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b', borderRadius: 14, padding: '16px 20px', boxShadow: isLight ? '0 4px 14px rgba(0,0,0,0.04)' : 'none' }}>
             <div style={{ fontSize: 11, color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
               Elevated Risk Zones
             </div>
             <div style={{ fontSize: 32, fontWeight: 900, color: dangerZones > 0 ? '#f97316' : '#22c55e', lineHeight: 1 }}>
               {dangerZones} <span style={{ fontSize: 14, fontWeight: 500, color: '#64748b' }}>/ {stations.length} stations</span>
             </div>
-            <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: isLight ? '#475569' : '#94a3b8', marginTop: 4 }}>
               {dangerZones > 0 ? 'High exposure alerts active' : 'All zones operating safely'}
             </div>
           </div>
 
           {/* Trend Analysis */}
-          <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 14, padding: '16px 20px' }}>
+          <div style={{ background: isLight ? '#ffffff' : '#0d1529', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b', borderRadius: 14, padding: '16px 20px', boxShadow: isLight ? '0 4px 14px rgba(0,0,0,0.04)' : 'none' }}>
             <div style={{ fontSize: 11, color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
               Temporal Trend
             </div>
-            <div style={{ fontSize: 24, fontWeight: 800, color: dominantTrend === 'up' ? '#ef4444' : dominantTrend === 'down' ? '#22c55e' : '#06b6d4', lineHeight: 1, textTransform: 'capitalize' }}>
+            <div style={{ fontSize: 24, fontWeight: 800, color: dominantTrend === 'up' ? '#ef4444' : dominantTrend === 'down' ? '#22c55e' : isLight ? '#0284c7' : '#06b6d4', lineHeight: 1, textTransform: 'capitalize' }}>
               {dominantTrend === 'up' ? '↗ Rising' : dominantTrend === 'down' ? '↘ Decreasing' : '→ Stable'}
             </div>
-            <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 6 }}>Neural pattern trajectory</div>
+            <div style={{ fontSize: 12, color: isLight ? '#475569' : '#94a3b8', marginTop: 6 }}>Neural pattern trajectory</div>
           </div>
 
           {/* Model Accuracy */}
-          <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 14, padding: '16px 20px' }}>
+          <div style={{ background: isLight ? '#ffffff' : '#0d1529', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b', borderRadius: 14, padding: '16px 20px', boxShadow: isLight ? '0 4px 14px rgba(0,0,0,0.04)' : 'none' }}>
             <div style={{ fontSize: 11, color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
               AI Model Accuracy
             </div>
             <div style={{ fontSize: 32, fontWeight: 900, color: '#22c55e', lineHeight: 1 }}>
               {Math.round(getCurrentAccuracy() * 100)}%
             </div>
-            <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>{predictionHorizon}-hr prediction window</div>
+            <div style={{ fontSize: 12, color: isLight ? '#475569' : '#94a3b8', marginTop: 4 }}>{predictionHorizon}-hr prediction window</div>
           </div>
         </div>
 
         {/* ── STATIONS SENSOR GRID ────────────────────────────────────────── */}
-        <h2 style={{ fontSize: 16, fontWeight: 700, color: '#f1f5f9', marginBottom: 14, letterSpacing: '-0.01em', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <h2 style={{ fontSize: 16, fontWeight: 700, color: isLight ? '#0f172a' : '#f1f5f9', marginBottom: 14, letterSpacing: '-0.01em', display: 'flex', alignItems: 'center', gap: 8 }}>
           📡 {selectedCity} Sensor Network & ML Forecasts
         </h2>
 
@@ -621,15 +632,15 @@ const RealTimeMLDashboard: React.FC = () => {
               <div
                 key={station.stationName}
                 style={{
-                  background: '#0d1529', border: '1px solid #1e293b', borderRadius: 16,
-                  padding: '20px', boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
+                  background: isLight ? '#ffffff' : '#0d1529', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b', borderRadius: 16,
+                  padding: '20px', boxShadow: isLight ? '0 4px 20px rgba(0,0,0,0.05)' : '0 10px 30px rgba(0,0,0,0.4)',
                 }}
               >
                 {/* Station Title & Risk Badge */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
                   <div>
-                    <div style={{ fontSize: 16, fontWeight: 800, color: '#f1f5f9' }}>{station.stationName}</div>
-                    <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: isLight ? '#0f172a' : '#f1f5f9' }}>{station.stationName}</div>
+                    <div style={{ fontSize: 11, color: isLight ? '#475569' : '#64748b', marginTop: 2 }}>
                       Updated: {lastUpdate.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
                     </div>
                   </div>
@@ -645,20 +656,20 @@ const RealTimeMLDashboard: React.FC = () => {
                 </div>
 
                 {/* AQI & Pollutant Details */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16, background: '#111827', padding: '14px', borderRadius: 12, border: '1px solid #1e293b' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16, background: isLight ? '#f8fafc' : '#111827', padding: '14px', borderRadius: 12, border: isLight ? '1px solid #e2e8f0' : '1px solid #1e293b' }}>
                   <div style={{ textAlign: 'center', flexShrink: 0 }}>
                     <div style={{ fontSize: 36, fontWeight: 900, color: risk.color, lineHeight: 1 }}>{station.currentAQI}</div>
                     <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600, marginTop: 4 }}>LIVE AQI</div>
                   </div>
-                  <div style={{ height: 36, width: 1, background: '#1e293b' }} />
+                  <div style={{ height: 36, width: 1, background: isLight ? '#e2e8f0' : '#1e293b' }} />
                   <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                     <div>
                       <div style={{ fontSize: 10, color: '#64748b' }}>PM2.5</div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#f1f5f9' }}>{station.pm25} <span style={{ fontSize: 10, color: '#475569' }}>μg/m³</span></div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: isLight ? '#0f172a' : '#f1f5f9' }}>{station.pm25} <span style={{ fontSize: 10, color: isLight ? '#475569' : '#475569' }}>μg/m³</span></div>
                     </div>
                     <div>
                       <div style={{ fontSize: 10, color: '#64748b' }}>PM10</div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#f1f5f9' }}>{station.pm10} <span style={{ fontSize: 10, color: '#475569' }}>μg/m³</span></div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: isLight ? '#0f172a' : '#f1f5f9' }}>{station.pm10} <span style={{ fontSize: 10, color: isLight ? '#475569' : '#475569' }}>μg/m³</span></div>
                     </div>
                   </div>
                 </div>
@@ -666,7 +677,7 @@ const RealTimeMLDashboard: React.FC = () => {
                 {/* Forecast Bar Chart Strip */}
                 <div style={{ marginTop: 14 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                    <span style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600 }}>🤖 ML Forecast (+{predictionHorizon}h)</span>
+                    <span style={{ fontSize: 11, color: isLight ? '#475569' : '#94a3b8', fontWeight: 600 }}>🤖 ML Forecast (+{predictionHorizon}h)</span>
                     <span style={{ fontSize: 10, color: '#06b6d4', fontWeight: 700 }}>87% Accuracy</span>
                   </div>
 

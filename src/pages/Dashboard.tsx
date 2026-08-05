@@ -156,17 +156,17 @@ const NavItem: React.FC<{ icon: React.ReactNode; label: string; active?: boolean
 );
 
 // ── Stat Card ─────────────────────────────────────────────────────────────────
-const StatCard: React.FC<{ label: string; value: string; sub?: string; icon: React.ReactNode; color: string }> = ({
-  label, value, sub, icon, color
+const StatCard: React.FC<{ label: string; value: string; sub?: string; icon: React.ReactNode; color: string; isLight?: boolean }> = ({
+  label, value, sub, icon, color, isLight
 }) => (
-  <div style={{ background: '#111827', border: '1px solid #1e293b', borderRadius: 12, padding: '14px 16px', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+  <div style={{ background: isLight ? '#ffffff' : '#111827', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b', borderRadius: 12, padding: '14px 16px', display: 'flex', gap: 12, alignItems: 'flex-start', boxShadow: isLight ? '0 4px 12px rgba(0,0,0,0.04)' : 'none' }}>
     <div style={{ width: 36, height: 36, borderRadius: 8, background: `${color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color }}>
       {icon}
     </div>
     <div>
-      <div style={{ fontSize: 11, color: '#475569', fontWeight: 500, marginBottom: 2 }}>{label}</div>
-      <div style={{ fontSize: 16, fontWeight: 700, color: '#f1f5f9', lineHeight: 1 }}>{value}</div>
-      {sub && <div style={{ fontSize: 11, color: '#475569', marginTop: 2 }}>{sub}</div>}
+      <div style={{ fontSize: 11, color: isLight ? '#475569' : '#64748b', fontWeight: 600, marginBottom: 2 }}>{label}</div>
+      <div style={{ fontSize: 15, fontWeight: 800, color: isLight ? '#0f172a' : '#f1f5f9', lineHeight: 1.2 }}>{value}</div>
+      {sub && <div style={{ fontSize: 11, color: isLight ? '#64748b' : '#475569', marginTop: 3 }}>{sub}</div>}
     </div>
   </div>
 );
@@ -175,15 +175,15 @@ const StatCard: React.FC<{ label: string; value: string; sub?: string; icon: Rea
 const FeatureCard: React.FC<{
   icon: React.ReactNode; title: string; desc: string;
   color: string; badge: string; badgeClass: string;
-  onClick: () => void;
-}> = ({ icon, title, desc, color, badge, badgeClass, onClick }) => (
+  onClick: () => void; isLight?: boolean;
+}> = ({ icon, title, desc, color, badge, badgeClass, onClick, isLight }) => (
   <motion.div
     className="feature-card"
     onClick={onClick}
     whileHover={{ y: -2 }}
     whileTap={{ scale: 0.98 }}
     transition={{ duration: 0.15 }}
-    style={{ cursor: 'pointer' }}
+    style={{ cursor: 'pointer', background: isLight ? '#ffffff' : '#0d1529', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b' }}
   >
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
       <div style={{ width: 44, height: 44, borderRadius: 10, background: `${color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', color }}>
@@ -191,8 +191,8 @@ const FeatureCard: React.FC<{
       </div>
       <span className={`badge ${badgeClass}`}>{badge}</span>
     </div>
-    <h4 style={{ fontSize: 15, fontWeight: 700, color: '#f1f5f9', marginBottom: 6 }}>{title}</h4>
-    <p style={{ fontSize: 13, color: '#64748b', lineHeight: 1.5, marginBottom: 14 }}>{desc}</p>
+    <h4 style={{ fontSize: 15, fontWeight: 700, color: isLight ? '#0f172a' : '#f1f5f9', marginBottom: 6 }}>{title}</h4>
+    <p style={{ fontSize: 13, color: isLight ? '#475569' : '#64748b', lineHeight: 1.5, marginBottom: 14 }}>{desc}</p>
     <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, fontWeight: 600, color }}>
       <span>Explore</span>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -532,12 +532,12 @@ const Dashboard: React.FC<DashboardProps> = ({ user, profile }) => {
 
             {/* Search Dropdown */}
             {showSearchResults && searchResults.length > 0 && (
-              <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 4, background: '#0d1529', border: '1px solid #1e293b', borderRadius: 10, boxShadow: '0 20px 40px rgba(0,0,0,0.6)', zIndex: 100, maxHeight: 240, overflowY: 'auto' }}>
+              <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 4, background: isLight ? '#ffffff' : '#0d1529', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b', borderRadius: 10, boxShadow: isLight ? '0 10px 30px rgba(0,0,0,0.1)' : '0 20px 40px rgba(0,0,0,0.6)', zIndex: 100, maxHeight: 240, overflowY: 'auto' }}>
                 {searchResults.map((res) => (
                   <button
                     key={res.uid}
                     onClick={() => handleCitySelected(res.name)}
-                    style={{ width: '100%', padding: '10px 14px', textAlign: 'left', background: 'none', border: 'none', borderBottom: '1px solid #1e293b', color: '#f1f5f9', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13 }}
+                    style={{ width: '100%', padding: '10px 14px', textAlign: 'left', background: 'none', border: 'none', borderBottom: isLight ? '1px solid #f1f5f9' : '1px solid #1e293b', color: isLight ? '#0f172a' : '#f1f5f9', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13 }}
                   >
                     <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: 8 }}>📍 {res.name}</span>
                     <span className="badge badge-cyan" style={{ fontSize: 10 }}>AQI {res.aqi}</span>
@@ -726,7 +726,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, profile }) => {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
                 <div>
                   <div style={{ fontSize: 12, color: '#475569', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>Air Quality Index</div>
-                  <div style={{ fontSize: 14, color: '#f1f5f9', fontWeight: 700 }}>
+                  <div style={{ fontSize: 14, color: isLight ? '#0f172a' : '#f1f5f9', fontWeight: 700 }}>
                     {aqiData ? aqiData.stationName : displayLoc}
                   </div>
                 </div>
@@ -850,35 +850,35 @@ const Dashboard: React.FC<DashboardProps> = ({ user, profile }) => {
               <StatCard
                 label="Real-Time Location" value={displayLoc} sub={locationInfo?.method === 'gps' ? '🎯 GPS Detected' : locationInfo?.method === 'cached' ? '📱 Cached Location' : '🔍 Searched'}
                 icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>}
-                color="#06b6d4"
+                color="#06b6d4" isLight={isLight}
               />
               <StatCard
                 label="Health Profile" value={profile.healthCondition || 'Healthy'} sub={`Age ${profile.age || '—'}`}
                 icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" /></svg>}
-                color="#22c55e"
+                color="#22c55e" isLight={isLight}
               />
               <StatCard
                 label="Outdoor Activity" value={profile.morningWalk === 'Yes' ? 'Morning Walk' : 'Indoor'} sub={profile.morningWalkTime || '—'}
                 icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2" /></svg>}
-                color="#f97316"
+                color="#f97316" isLight={isLight}
               />
               <StatCard
                 label="Dust Sensitivity" value={profile.sensitiveToDust || 'No'} sub={profile.allergies && profile.allergies !== 'None' ? profile.allergies : 'No allergies'}
                 icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /></svg>}
-                color="#818cf8"
+                color="#818cf8" isLight={isLight}
               />
             </div>
           </motion.div>
 
           {/* ── FEATURE CARDS ────────────────────────────────────── */}
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.5 }} style={{ marginBottom: 24 }}>
-            <h3 style={{ fontSize: 15, fontWeight: 700, color: '#64748b', marginBottom: 14, textTransform: 'uppercase', letterSpacing: '0.06em' }}>AI Intelligence Hub</h3>
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: isLight ? '#0f172a' : '#64748b', marginBottom: 14, textTransform: 'uppercase', letterSpacing: '0.06em' }}>AI Intelligence Hub</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 14 }}>
               <FeatureCard
                 icon={<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0-.34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/></svg>}
                 title="ML Intelligence" desc="24-hr AQI forecasting with temporal pattern analysis and spatial risk mapping."
                 color="#06b6d4" badge="AI Powered" badgeClass="badge-cyan"
-                onClick={() => navigate('/intelligence')}
+                onClick={() => navigate('/intelligence')} isLight={isLight}
               />
               <FeatureCard
                 icon={<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M9 12V6.5c0-1.5-.5-3-2-4"/><path d="M15 12V6.5c0-1.5.5-3 2-4"/><path d="M9 12h6"/></svg>}
