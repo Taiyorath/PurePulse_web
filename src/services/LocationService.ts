@@ -218,7 +218,12 @@ export async function resolveLocationAndAQI(): Promise<{
         };
         localStorage.setItem('pp_city', cityName);
         localStorage.setItem('pp_city_display', displayCity);
+        localStorage.setItem('pp_lat', coords.lat.toString());
+        localStorage.setItem('pp_lng', coords.lon.toString());
         localStorage.setItem('pp_city_ts', Date.now().toString());
+
+        window.dispatchEvent(new CustomEvent('pp_location_changed', { detail: { city: cityName, lat: coords.lat, lon: coords.lon } }));
+
         return { location: result, aqi, permissionDenied: false };
       }
     }
@@ -247,13 +252,33 @@ export async function lookupCity(cityName: string): Promise<{
   location: LocationResult;
   aqi: AQIStation | null;
 }> {
-  const aqi = await fetchAQIForCity(cityName);
+  let lat = 12.2958;
+  let lon = 76.6450;
+
+  try {
+    const geoRes = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cityName)}&limit=1`,
+      { headers: { 'Accept-Language': 'en-US,en' } }
+    );
+    const geoJson = await geoRes.json();
+    if (Array.isArray(geoJson) && geoJson.length > 0) {
+      lat = parseFloat(geoJson[0].lat);
+      lon = parseFloat(geoJson[0].lon);
+    }
+  } catch {}
+
+  const aqi = await fetchAQIByOpenMeteo(lat, lon, cityName) || await fetchAQIForCity(cityName);
   const displayCity = aqi?.city || cityName;
-  const location: LocationResult = { city: cityName, displayCity, method: 'manual' };
+  const location: LocationResult = { city: cityName, displayCity, method: 'manual', lat, lon };
 
   localStorage.setItem('pp_city', cityName);
   localStorage.setItem('pp_city_display', displayCity);
+  localStorage.setItem('pp_lat', lat.toString());
+  localStorage.setItem('pp_lng', lon.toString());
   localStorage.setItem('pp_city_ts', Date.now().toString());
+
+  // Broadcast location change across all pages
+  window.dispatchEvent(new CustomEvent('pp_location_changed', { detail: { city: cityName, lat, lon } }));
 
   return { location, aqi };
 }

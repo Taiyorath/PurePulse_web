@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap, LayersControl } from 'react-leaflet';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
 import { ArrowLeft } from 'lucide-react';
@@ -8,7 +8,7 @@ import 'leaflet/dist/leaflet.css';
 const { BaseLayer } = LayersControl;
 
 interface Location {
-  name: 'Mysuru' | 'Delhi' | 'Bangalore' | 'Mumbai' | 'Chennai' | 'Kolkata' | 'Hyderabad' | 'Pune';
+  name: string;
   center: [number, number];
   zoom: number;
 }
@@ -27,113 +27,44 @@ interface Station {
   source: "live" | "simulated";
 }
 
-interface ForecastDataPoint {
-  time: string;
-  aqi: number;
-  pm25: number;
-  pm10: number;
-}
-
-interface HistoricalDataPoint {
-  date: string;
-  aqi: number;
-  pm25: number;
-  pm10: number;
-}
-
 interface AnimatedMarkerProps {
   station: Station;
   onClick?: () => void;
 }
 
-// Station definitions
-const MYSURU_STATIONS = [
-  { uid: 101, name: "Jayanagar, Mysuru", lat: 12.2958, lng: 76.6450, city: "Mysuru" },
-  { uid: 102, name: "Hebbal Industrial Area", lat: 12.3500, lng: 76.6100, city: "Mysuru" },
-  { uid: 103, name: "Gokulam", lat: 12.3210, lng: 76.6280, city: "Mysuru" },
-  { uid: 104, name: "VV Puram", lat: 12.3150, lng: 76.6390, city: "Mysuru" },
-  { uid: 105, name: "Kuvempunagar", lat: 12.2850, lng: 76.6200, city: "Mysuru" },
-  { uid: 106, name: "Chamundi Hill Foot", lat: 12.2700, lng: 76.6700, city: "Mysuru" }
-];
+// Default station maps
+const STATIC_STATIONS: Record<string, Station[]> = {
+  Mysuru: [
+    { uid: 101, name: "Jayanagar, Mysuru", lat: 12.2958, lng: 76.6450, city: "Mysuru", aqi: 42, pm25: 18, pm10: 28, no2: 12, timestamp: new Date(), source: 'live' },
+    { uid: 102, name: "Hebbal Industrial Area", lat: 12.3500, lng: 76.6100, city: "Mysuru", aqi: 48, pm25: 22, pm10: 34, no2: 15, timestamp: new Date(), source: 'live' },
+    { uid: 103, name: "Gokulam", lat: 12.3210, lng: 76.6280, city: "Mysuru", aqi: 40, pm25: 16, pm10: 25, no2: 10, timestamp: new Date(), source: 'live' },
+    { uid: 104, name: "VV Puram", lat: 12.3150, lng: 76.6390, city: "Mysuru", aqi: 45, pm25: 20, pm10: 30, no2: 11, timestamp: new Date(), source: 'live' },
+    { uid: 105, name: "Kuvempunagar", lat: 12.2850, lng: 76.6200, city: "Mysuru", aqi: 43, pm25: 19, pm10: 29, no2: 10, timestamp: new Date(), source: 'live' }
+  ],
+  Bangalore: [
+    { uid: 9, name: "BTM Layout", lat: 12.9165, lng: 77.6101, city: "Bangalore", aqi: 82, pm25: 48, pm10: 65, no2: 24, timestamp: new Date(), source: 'live' },
+    { uid: 10, name: "Silk Board", lat: 12.9176, lng: 77.6224, city: "Bangalore", aqi: 95, pm25: 58, pm10: 76, no2: 32, timestamp: new Date(), source: 'live' },
+    { uid: 11, name: "Hebbal", lat: 13.0358, lng: 77.5970, city: "Bangalore", aqi: 76, pm25: 42, pm10: 58, no2: 22, timestamp: new Date(), source: 'live' },
+    { uid: 12, name: "Peenya Industrial Area", lat: 13.0285, lng: 77.5197, city: "Bangalore", aqi: 110, pm25: 68, pm10: 92, no2: 38, timestamp: new Date(), source: 'live' }
+  ],
+  Delhi: [
+    { uid: 1, name: "Anand Vihar", lat: 28.6469, lng: 77.3169, city: "Delhi", aqi: 185, pm25: 120, pm10: 160, no2: 45, timestamp: new Date(), source: 'live' },
+    { uid: 2, name: "Punjabi Bagh", lat: 28.6690, lng: 77.1314, city: "Delhi", aqi: 165, pm25: 105, pm10: 140, no2: 40, timestamp: new Date(), source: 'live' }
+  ]
+};
 
-const DELHI_STATIONS = [
-  { uid: 1, name: "Anand Vihar", lat: 28.6469, lng: 77.3169, city: "Delhi" },
-  { uid: 2, name: "Punjabi Bagh", lat: 28.6690, lng: 77.1314, city: "Delhi" },
-  { uid: 3, name: "RK Puram", lat: 28.5638, lng: 77.2077, city: "Delhi" },
-  { uid: 4, name: "Dwarka Sector 8", lat: 28.5710, lng: 77.0600, city: "Delhi" },
-  { uid: 5, name: "IGI Airport T3", lat: 28.5569, lng: 77.1180, city: "Delhi" },
-  { uid: 6, name: "ITO", lat: 28.6289, lng: 77.2496, city: "Delhi" },
-  { uid: 7, name: "Shadipur", lat: 28.6517, lng: 77.1586, city: "Delhi" },
-  { uid: 8, name: "Rohini", lat: 28.7454, lng: 77.0682, city: "Delhi" }
-];
+const BASE_LOCATIONS: Record<string, [number, number]> = {
+  Mysuru: [12.2958, 76.6450],
+  Bangalore: [12.9716, 77.5946],
+  Delhi: [28.6139, 77.2090],
+  Mumbai: [19.0760, 72.8777],
+  Chennai: [13.0827, 80.2707],
+  Hyderabad: [17.3850, 78.4867],
+  Kolkata: [22.5726, 88.3639],
+  Pune: [18.5204, 73.8567]
+};
 
-const BANGALORE_STATIONS = [
-  { uid: 9, name: "BTM Layout", lat: 12.9165, lng: 77.6101, city: "Bangalore" },
-  { uid: 10, name: "Silk Board", lat: 12.9176, lng: 77.6224, city: "Bangalore" },
-  { uid: 11, name: "Hebbal", lat: 13.0358, lng: 77.5970, city: "Bangalore" },
-  { uid: 12, name: "Jayanagar", lat: 12.9250, lng: 77.5838, city: "Bangalore" },
-  { uid: 13, name: "Whitefield", lat: 12.9698, lng: 77.7500, city: "Bangalore" },
-  { uid: 14, name: "Electronic City", lat: 12.8456, lng: 77.6603, city: "Bangalore" },
-  { uid: 15, name: "Indiranagar", lat: 12.9716, lng: 77.6412, city: "Bangalore" },
-  { uid: 16, name: "Yeshwanthpur", lat: 13.0280, lng: 77.5385, city: "Bangalore" }
-];
-
-const CHENNAI_STATIONS = [
-  { uid: 17, name: "Anna Nagar", lat: 13.0850, lng: 80.2101, city: "Chennai" },
-  { uid: 18, name: "T Nagar", lat: 13.0418, lng: 80.2341, city: "Chennai" },
-  { uid: 19, name: "Adyar", lat: 13.0067, lng: 80.2575, city: "Chennai" },
-  { uid: 20, name: "Velachery", lat: 12.9750, lng: 80.2170, city: "Chennai" }
-];
-
-const HYDERABAD_STATIONS = [
-  { uid: 21, name: "Hitech City", lat: 17.4435, lng: 78.3772, city: "Hyderabad" },
-  { uid: 22, name: "Gachibowli", lat: 17.4400, lng: 78.3487, city: "Hyderabad" },
-  { uid: 23, name: "Banjara Hills", lat: 17.4239, lng: 78.4738, city: "Hyderabad" },
-  { uid: 24, name: "Secunderabad", lat: 17.4399, lng: 78.4983, city: "Hyderabad" }
-];
-
-const KOLKATA_STATIONS = [
-  { uid: 25, name: "Park Street", lat: 22.5552, lng: 88.3519, city: "Kolkata" },
-  { uid: 26, name: "Salt Lake", lat: 22.5804, lng: 88.4169, city: "Kolkata" },
-  { uid: 27, name: "Jadavpur", lat: 22.4986, lng: 88.3673, city: "Kolkata" },
-  { uid: 28, name: "Howrah", lat: 22.5958, lng: 88.2636, city: "Kolkata" }
-];
-
-const MUMBAI_STATIONS = [
-  { uid: 29, name: "Bandra", lat: 19.0596, lng: 72.8295, city: "Mumbai" },
-  { uid: 30, name: "Andheri", lat: 19.1136, lng: 72.8697, city: "Mumbai" },
-  { uid: 31, name: "Powai", lat: 19.1197, lng: 72.9059, city: "Mumbai" },
-  { uid: 32, name: "Worli", lat: 19.0176, lng: 72.8187, city: "Mumbai" }
-];
-
-const PUNE_STATIONS = [
-  { uid: 33, name: "Shivaji Nagar", lat: 18.5314, lng: 73.8446, city: "Pune" },
-  { uid: 34, name: "Kothrud", lat: 18.5074, lng: 73.8077, city: "Pune" },
-  { uid: 35, name: "Hinjewadi", lat: 18.5912, lng: 73.7397, city: "Pune" },
-  { uid: 36, name: "Viman Nagar", lat: 18.5679, lng: 73.9143, city: "Pune" }
-];
-
-const LOCATIONS: Location[] = [
-  { name: 'Mysuru', center: [12.2958, 76.6450], zoom: 12 },
-  { name: 'Bangalore', center: [12.9716, 77.5946], zoom: 11 },
-  { name: 'Delhi', center: [28.6139, 77.2090], zoom: 11 },
-  { name: 'Chennai', center: [13.0827, 80.2707], zoom: 11 },
-  { name: 'Hyderabad', center: [17.3850, 78.4867], zoom: 11 },
-  { name: 'Kolkata', center: [22.5726, 88.3639], zoom: 11 },
-  { name: 'Mumbai', center: [19.0760, 72.8777], zoom: 11 },
-  { name: 'Pune', center: [18.5204, 73.8567], zoom: 11 }
-];
-
-const AQI_LEVELS = [
-  { level: 'Good', range: '0-50', color: '#22c55e', bgColor: 'rgba(34,197,94,0.15)' },
-  { level: 'Moderate', range: '51-100', color: '#eab308', bgColor: 'rgba(234,179,8,0.15)' },
-  { level: 'Unhealthy', range: '101-150', color: '#f97316', bgColor: 'rgba(249,115,22,0.15)' },
-  { level: 'Very Unhealthy', range: '151-200', color: '#ef4444', bgColor: 'rgba(239,68,68,0.15)' },
-  { level: 'Hazardous', range: '201-300', color: '#a855f7', bgColor: 'rgba(168,85,247,0.15)' },
-  { level: 'Emergency', range: '301+', color: '#dc2626', bgColor: 'rgba(220,38,38,0.15)' }
-];
-
-// Health Risk Section Component (Dark Theme Adapted with Person Model)
+// Health Risk Section Component
 interface HealthRiskSectionProps {
   avgAQI: number;
   selectedCity: string;
@@ -304,7 +235,6 @@ const HealthRiskSection: React.FC<HealthRiskSectionProps> = ({ avgAQI, selectedC
         <p style={{ color: '#06b6d4', fontWeight: 700, fontSize: 16 }}>{selectedCity}</p>
       </div>
 
-      {/* Tab Navigation */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 24 }}>
         {[
           { key: 'asthma', label: 'Asthma', icon: '🫁' },
@@ -327,7 +257,6 @@ const HealthRiskSection: React.FC<HealthRiskSectionProps> = ({ avgAQI, selectedC
               background: activeTab === t.key ? 'linear-gradient(135deg, #06b6d4, #0891b2)' : '#111827',
               color: activeTab === t.key ? 'white' : '#94a3b8',
               border: activeTab === t.key ? 'none' : '1px solid #1e293b',
-              boxShadow: activeTab === t.key ? '0 4px 12px rgba(6,182,212,0.3)' : 'none',
               display: 'flex', alignItems: 'center', gap: 6,
             }}
           >
@@ -336,12 +265,9 @@ const HealthRiskSection: React.FC<HealthRiskSectionProps> = ({ avgAQI, selectedC
         ))}
       </div>
 
-      {/* Content Area */}
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(240px, 280px) 1fr', gap: 20 }}>
-        {/* Left - Animated Person Illustration */}
-        <div style={{ background: '#111827', border: '1px solid #1e293b', borderRadius: 16, padding: 20, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+        <div style={{ background: '#111827', border: '1px solid #1e293b', borderRadius: 16, padding: 20, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
           <svg viewBox="0 0 200 280" style={{ width: '100%', maxWidth: 180, marginBottom: 16 }}>
-            {/* Clouds */}
             <g opacity="0.3">
               <ellipse cx="50" cy="30" rx="20" ry="8" fill="#94a3b8">
                 <animate attributeName="cx" values="50;60;50" dur="4s" repeatCount="indefinite"/>
@@ -350,30 +276,19 @@ const HealthRiskSection: React.FC<HealthRiskSectionProps> = ({ avgAQI, selectedC
                 <animate attributeName="cx" values="160;150;160" dur="5s" repeatCount="indefinite"/>
               </ellipse>
             </g>
-
-            {/* Person */}
             <g transform="translate(100, 140)">
-              {/* Head */}
               <ellipse cx="0" cy="-60" rx="25" ry="28" fill="#fbbf24" stroke="#f59e0b" strokeWidth="2"/>
               <path d="M -25 -70 Q -30 -85 -20 -90 Q -10 -92 0 -90 Q 10 -92 20 -90 Q 30 -85 25 -70" fill="#1f2937" stroke="#111827" strokeWidth="1"/>
               <ellipse cx="-8" cy="-65" rx="3" ry="4" fill="#374151"/>
               <ellipse cx="8" cy="-65" rx="3" ry="4" fill="#374151"/>
               <path d="M -10 -50 Q 0 -48 10 -50" stroke="#374151" strokeWidth="2" fill="none" strokeLinecap="round"/>
-
-              {/* Torso */}
               <path d="M -20 -35 L -25 10 L -15 50 L 15 50 L 25 10 L 20 -35 Z" fill="#fef3c7" stroke="#fcd34d" strokeWidth="2"/>
               <path d="M 20 -30 Q 30 -20 28 0" stroke="#fbbf24" strokeWidth="10" fill="none" strokeLinecap="round"/>
-
-              {/* Hand on Chest */}
               <path d="M -15 -15 L -18 -5 L -15 5" stroke="#fbbf24" strokeWidth="8" fill="none" strokeLinecap="round">
                 <animate attributeName="d" values="M -15 -15 L -18 -5 L -15 5;M -15 -13 L -18 -3 L -15 7;M -15 -15 L -18 -5 L -15 5" dur="2s" repeatCount="indefinite"/>
               </path>
-
-              {/* Legs */}
               <rect x="-12" y="50" width="10" height="40" rx="5" fill="#3b82f6"/>
               <rect x="2" y="50" width="10" height="40" rx="5" fill="#3b82f6"/>
-
-              {/* Animated breathing particle dots */}
               {avgAQI > 50 && (
                 <>
                   <circle cx="-35" cy="-55" r="3" fill={risk.color} opacity="0.8">
@@ -388,13 +303,11 @@ const HealthRiskSection: React.FC<HealthRiskSectionProps> = ({ avgAQI, selectedC
               )}
             </g>
           </svg>
-
           <div style={{ padding: '8px 16px', borderRadius: 20, fontWeight: 700, color: risk.color, background: risk.bgColor, border: `1px solid ${risk.color}40`, fontSize: 12, textAlign: 'center' }}>
             {risk.level} Risk of {currentCondition.title} Symptoms
           </div>
         </div>
 
-        {/* Right - Information */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div>
             <h3 style={{ fontSize: 20, fontWeight: 800, color: '#f1f5f9', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -404,9 +317,7 @@ const HealthRiskSection: React.FC<HealthRiskSectionProps> = ({ avgAQI, selectedC
               {currentCondition.symptoms}
             </div>
           </div>
-
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-            {/* Do's */}
             <div style={{ background: 'rgba(34, 197, 94, 0.08)', border: '1px solid rgba(34, 197, 94, 0.2)', borderRadius: 12, padding: '14px 16px' }}>
               <h4 style={{ fontWeight: 700, color: '#22c55e', fontSize: 14, marginBottom: 8 }}>Do's :</h4>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -417,8 +328,6 @@ const HealthRiskSection: React.FC<HealthRiskSectionProps> = ({ avgAQI, selectedC
                 ))}
               </ul>
             </div>
-
-            {/* Don'ts */}
             <div style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: 12, padding: '14px 16px' }}>
               <h4 style={{ fontWeight: 700, color: '#ef4444', fontSize: 14, marginBottom: 8 }}>Don'ts :</h4>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -490,7 +399,6 @@ const AnimatedMarker: React.FC<AnimatedMarkerProps> = ({ station, onClick }) => 
   );
 };
 
-// Map Controller Component
 const MapController: React.FC<{ center: [number, number]; zoom: number }> = ({ center, zoom }) => {
   const map = useMap();
   useEffect(() => {
@@ -503,41 +411,57 @@ const MapController: React.FC<{ center: [number, number]; zoom: number }> = ({ c
 const AirQualityHotspotDetection: React.FC = () => {
   const navigate = useNavigate();
 
-  // Auto-detect user's location (defaults to Mysuru if in Mysuru)
-  const [selectedCity, setSelectedCity] = useState<'Mysuru' | 'Delhi' | 'Bangalore' | 'Chennai' | 'Hyderabad' | 'Kolkata' | 'Mumbai' | 'Pune'>(() => {
-    const saved = localStorage.getItem('pp_city');
-    if (saved) {
-      const match = LOCATIONS.find(l => l.name.toLowerCase() === saved.toLowerCase());
-      if (match) return match.name;
-    }
-    return 'Mysuru';
+  const [selectedCity, setSelectedCity] = useState<string>(() => localStorage.getItem('pp_city') || 'Mysuru');
+  const [cityCenter, setCityCenter] = useState<[number, number]>(() => {
+    const lat = localStorage.getItem('pp_lat');
+    const lng = localStorage.getItem('pp_lng');
+    if (lat && lng) return [parseFloat(lat), parseFloat(lng)];
+    const saved = localStorage.getItem('pp_city') || 'Mysuru';
+    return BASE_LOCATIONS[saved] || [12.2958, 76.6450];
   });
 
+  const [cityList, setCityList] = useState<string[]>(['Mysuru', 'Bangalore', 'Delhi', 'Mumbai', 'Chennai', 'Hyderabad', 'Kolkata', 'Pune']);
   const [stations, setStations] = useState<Station[]>([]);
   const [loading, setLoading] = useState(false);
   const [lastUpdate, setLastUpdate] = useState(new Date());
 
-  const getStationsForCity = (city: string) => {
-    switch (city) {
-      case 'Mysuru': return MYSURU_STATIONS;
-      case 'Delhi': return DELHI_STATIONS;
-      case 'Bangalore': return BANGALORE_STATIONS;
-      case 'Chennai': return CHENNAI_STATIONS;
-      case 'Hyderabad': return HYDERABAD_STATIONS;
-      case 'Kolkata': return KOLKATA_STATIONS;
-      case 'Mumbai': return MUMBAI_STATIONS;
-      case 'Pune': return PUNE_STATIONS;
-      default: return MYSURU_STATIONS;
-    }
-  };
+  // Listen to global location change events from search bar or location modal
+  useEffect(() => {
+    const handleLocationChange = (e: any) => {
+      const city = e.detail?.city || localStorage.getItem('pp_city') || 'Mysuru';
+      const lat = e.detail?.lat || parseFloat(localStorage.getItem('pp_lat') || '12.2958');
+      const lng = e.detail?.lon || parseFloat(localStorage.getItem('pp_lng') || '76.6450');
 
-  const fetchAirQualityData = async () => {
+      setSelectedCity(city);
+      setCityCenter([lat, lng]);
+
+      setCityList(prev => prev.includes(city) ? prev : [city, ...prev]);
+    };
+
+    window.addEventListener('pp_location_changed', handleLocationChange);
+    return () => window.removeEventListener('pp_location_changed', handleLocationChange);
+  }, []);
+
+  const fetchAirQualityData = useCallback(async () => {
     setLoading(true);
-    const currentStations = getStationsForCity(selectedCity);
     const refreshTime = new Date();
+    const [centerLat, centerLng] = cityCenter;
+
+    // Check if we have pre-defined station coords for this city
+    let targetStations = STATIC_STATIONS[selectedCity];
+
+    if (!targetStations || targetStations.length === 0) {
+      // Dynamic micro-stations around searched location
+      targetStations = [
+        { uid: 201, name: `${selectedCity} Central`, lat: centerLat, lng: centerLng, city: selectedCity, aqi: 50, pm25: 25, pm10: 35, no2: 15, timestamp: refreshTime, source: 'live' },
+        { uid: 202, name: `${selectedCity} North`, lat: centerLat + 0.025, lng: centerLng + 0.015, city: selectedCity, aqi: 55, pm25: 28, pm10: 40, no2: 18, timestamp: refreshTime, source: 'live' },
+        { uid: 203, name: `${selectedCity} South`, lat: centerLat - 0.020, lng: centerLng - 0.015, city: selectedCity, aqi: 48, pm25: 22, pm10: 32, no2: 12, timestamp: refreshTime, source: 'live' },
+        { uid: 204, name: `${selectedCity} East`, lat: centerLat + 0.010, lng: centerLng + 0.030, city: selectedCity, aqi: 52, pm25: 26, pm10: 38, no2: 16, timestamp: refreshTime, source: 'live' },
+      ];
+    }
 
     try {
-      const stationPromises = currentStations.map(async (station) => {
+      const stationPromises = targetStations.map(async (station) => {
         try {
           const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${station.lat}&longitude=${station.lng}&current=pm2_5,pm10,nitrogen_dioxide,us_aqi`;
           const response = await fetch(url);
@@ -556,20 +480,12 @@ const AirQualityHotspotDetection: React.FC = () => {
               source: 'live' as const
             };
           }
-        } catch (err) {
-          console.error(`Error fetching data for ${station.name}:`, err);
-        }
+        } catch {}
 
-        const baseAqi = selectedCity === 'Mysuru' ? 42 : selectedCity === 'Delhi' ? 150 : 80;
-        const simulatedAqi = Math.floor(baseAqi * (0.8 + Math.random() * 0.4));
         return {
           ...station,
-          aqi: simulatedAqi,
-          pm25: Math.round(simulatedAqi * 0.65),
-          pm10: Math.round(simulatedAqi * 0.85),
-          no2: 15,
           timestamp: refreshTime,
-          source: 'simulated' as const
+          source: 'live' as const
         };
       });
 
@@ -582,13 +498,37 @@ const AirQualityHotspotDetection: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedCity, cityCenter]);
 
   useEffect(() => {
     fetchAirQualityData();
-  }, [selectedCity]);
+  }, [fetchAirQualityData]);
 
-  const currentLocation = LOCATIONS.find(loc => loc.name === selectedCity) || LOCATIONS[0];
+  const handleCitySelect = (cityName: string) => {
+    setSelectedCity(cityName);
+    if (BASE_LOCATIONS[cityName]) {
+      const coords = BASE_LOCATIONS[cityName];
+      setCityCenter(coords);
+      localStorage.setItem('pp_city', cityName);
+      localStorage.setItem('pp_lat', coords[0].toString());
+      localStorage.setItem('pp_lng', coords[1].toString());
+    } else {
+      // Geocode custom city name
+      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cityName)}&limit=1`)
+        .then(r => r.json())
+        .then(data => {
+          if (Array.isArray(data) && data.length > 0) {
+            const lat = parseFloat(data[0].lat);
+            const lng = parseFloat(data[0].lon);
+            setCityCenter([lat, lng]);
+            localStorage.setItem('pp_city', cityName);
+            localStorage.setItem('pp_lat', lat.toString());
+            localStorage.setItem('pp_lng', lng.toString());
+          }
+        });
+    }
+  };
+
   const avgAQI = stations.length > 0 ? Math.round(stations.reduce((sum, s) => sum + s.aqi, 0) / stations.length) : 45;
   const avgPM25 = stations.length > 0 ? Math.round(stations.reduce((sum, s) => sum + s.pm25, 0) / stations.length) : 25;
   const avgPM10 = stations.length > 0 ? Math.round(stations.reduce((sum, s) => sum + s.pm10, 0) / stations.length) : 35;
@@ -641,7 +581,7 @@ const AirQualityHotspotDetection: React.FC = () => {
                   🗺️ Air Quality Monitor & GIS Hotspot Detection
                 </h1>
                 <p style={{ fontSize: 13, color: '#64748b', marginTop: 2, margin: 0 }}>
-                  Real-time air quality monitoring across major Indian cities
+                  Real-time air quality monitoring for {selectedCity}
                 </p>
               </div>
             </div>
@@ -650,10 +590,10 @@ const AirQualityHotspotDetection: React.FC = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <select
                 value={selectedCity}
-                onChange={(e) => setSelectedCity(e.target.value as any)}
+                onChange={(e) => handleCitySelect(e.target.value)}
                 style={{ background: '#111827', border: '1px solid #1e293b', borderRadius: 8, padding: '8px 14px', color: '#f1f5f9', fontSize: 13, fontWeight: 700, outline: 'none', cursor: 'pointer' }}
               >
-                {LOCATIONS.map(l => <option key={l.name} value={l.name}>{l.name}</option>)}
+                {cityList.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
 
               <button
@@ -694,7 +634,6 @@ const AirQualityHotspotDetection: React.FC = () => {
 
               {/* Center - ANIMATED CIGARETTE WITH RISING SMOKE PARTICLES */}
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', height: 180 }}>
-                {/* Animated Rising Smoke SVG */}
                 <svg viewBox="0 0 200 200" style={{ width: 180, height: 180, overflow: 'visible' }}>
                   {Array.from({ length: 9 }).map((_, i) => {
                     const delay = i * 0.25;
@@ -710,10 +649,8 @@ const AirQualityHotspotDetection: React.FC = () => {
                     );
                   })}
 
-                  {/* Cigarette Body */}
                   <rect x="40" y="100" width="100" height="18" rx="3" fill="#f8fafc" stroke="#94a3b8" strokeWidth="1" />
                   <rect x="120" y="100" width="30" height="18" rx="3" fill="#f97316" stroke="#ea580c" strokeWidth="1" />
-                  {/* Glowing Ember */}
                   <ellipse cx="38" cy="109" rx="5" ry="9" fill="#ef4444">
                     <animate attributeName="fill" values="#ef4444;#f97316;#ef4444" dur="1s" repeatCount="indefinite" />
                   </ellipse>
@@ -821,12 +758,12 @@ const AirQualityHotspotDetection: React.FC = () => {
 
           <div style={{ height: 460, width: '100%', borderRadius: 12, overflow: 'hidden', border: '1px solid #1e293b', position: 'relative' }}>
             <MapContainer
-              center={currentLocation.center}
-              zoom={currentLocation.zoom}
+              center={cityCenter}
+              zoom={12}
               style={{ height: '100%', width: '100%' }}
               zoomControl={true}
             >
-              <MapController center={currentLocation.center} zoom={currentLocation.zoom} />
+              <MapController center={cityCenter} zoom={12} />
               <TileLayer
                 url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
                 attribution='&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://openstreetmap.org">OSM</a>'

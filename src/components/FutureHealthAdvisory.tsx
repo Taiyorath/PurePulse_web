@@ -145,6 +145,19 @@ const FutureHealthAdvisory: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    const saved = localStorage.getItem('pp_city');
+    if (saved) setSelectedCity(saved);
+
+    const handleLoc = (e: any) => {
+      const city = e.detail?.city || localStorage.getItem('pp_city');
+      if (city) setSelectedCity(city);
+    };
+
+    window.addEventListener('pp_location_changed', handleLoc);
+    return () => window.removeEventListener('pp_location_changed', handleLoc);
+  }, []);
+
+  useEffect(() => {
     setIsLoading(true);
     const timer = setTimeout(() => {
       calculatePersonalizedRisk(selectedCity, selectedTimeRange);
