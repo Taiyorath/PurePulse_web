@@ -571,20 +571,20 @@ const AirQualityHotspotDetection: React.FC = () => {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#060d1b', color: '#f1f5f9', fontFamily: 'Inter, sans-serif', padding: '24px 20px', position: 'relative' }}>
+    <div style={{ minHeight: '100vh', background: isLight ? '#f8fafc' : '#060d1b', color: isLight ? '#0f172a' : '#f1f5f9', fontFamily: 'Inter, sans-serif', padding: '24px 20px', position: 'relative', transition: 'background-color 0.3s ease' }}>
       {/* Background Glow Mesh */}
-      <div style={{ position: 'fixed', inset: 0, background: 'radial-gradient(ellipse 70% 50% at 30% 0%, rgba(6,182,212,0.06) 0%, transparent 70%), #060d1b', pointerEvents: 'none', zIndex: 0 }} />
+      <div style={{ position: 'fixed', inset: 0, background: isLight ? 'radial-gradient(ellipse 70% 50% at 30% 0%, rgba(2,132,199,0.06) 0%, transparent 70%), #f8fafc' : 'radial-gradient(ellipse 70% 50% at 30% 0%, rgba(6,182,212,0.06) 0%, transparent 70%), #060d1b', pointerEvents: 'none', zIndex: 0 }} />
 
       <div style={{ maxWidth: 1200, margin: '0 auto', position: 'relative', zIndex: 1 }}>
 
         {/* ── HEADER ────────────────────────────────────────────────────────── */}
-        <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 16, padding: '18px 24px', marginBottom: 20, boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>
+        <div style={{ background: isLight ? '#ffffff' : '#0d1529', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b', borderRadius: 16, padding: '18px 24px', marginBottom: 20, boxShadow: isLight ? '0 10px 30px rgba(0,0,0,0.05)' : '0 20px 40px rgba(0,0,0,0.5)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
               <button
                 onClick={() => navigate('/')}
                 style={{
-                  width: 38, height: 38, borderRadius: 10, background: '#111827', border: '1px solid #1e293b',
+                  width: 38, height: 38, borderRadius: 10, background: isLight ? '#f1f5f9' : '#111827', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b',
                   color: '#06b6d4', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
                 }}
                 title="Back to Dashboard"
@@ -592,10 +592,10 @@ const AirQualityHotspotDetection: React.FC = () => {
                 <ArrowLeft className="h-5 w-5" />
               </button>
               <div>
-                <h1 style={{ fontSize: 22, fontWeight: 800, color: '#f1f5f9', letterSpacing: '-0.02em', margin: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
+                <h1 style={{ fontSize: 22, fontWeight: 800, color: isLight ? '#0f172a' : '#f1f5f9', letterSpacing: '-0.02em', margin: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
                   🗺️ Air Quality Monitor & GIS Hotspot Detection
                 </h1>
-                <p style={{ fontSize: 13, color: '#64748b', marginTop: 2, margin: 0 }}>
+                <p style={{ fontSize: 13, color: isLight ? '#475569' : '#64748b', marginTop: 2, margin: 0 }}>
                   Real-time air quality monitoring for {selectedCity}
                 </p>
               </div>
@@ -624,20 +624,20 @@ const AirQualityHotspotDetection: React.FC = () => {
                   placeholder="Search any city/location (e.g. Bangalore, Tokyo)..."
                   style={{
                     width: '100%',
-                    background: '#111827',
-                    border: '1px solid #1e293b',
+                    background: isLight ? '#ffffff' : '#111827',
+                    border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b',
                     borderRadius: 24,
                     padding: '9px 16px 9px 40px',
-                    color: '#f1f5f9',
+                    color: isLight ? '#0f172a' : '#f1f5f9',
                     fontSize: 13,
                     fontWeight: 600,
                     outline: 'none',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                    boxShadow: isLight ? '0 2px 8px rgba(0,0,0,0.05)' : '0 4px 12px rgba(0,0,0,0.3)',
                     transition: 'all 0.2s',
                   }}
                 />
                 <svg
-                  width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2.5" strokeLinecap="round"
+                  width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={isLight ? '#475569' : '#64748b'} strokeWidth="2.5" strokeLinecap="round"
                   style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
                 >
                   <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -647,8 +647,8 @@ const AirQualityHotspotDetection: React.FC = () => {
                 {showSuggestions && (
                   <div style={{
                     position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 6,
-                    background: '#0d1529', border: '1px solid #1e293b', borderRadius: 14,
-                    overflow: 'hidden', zIndex: 100, boxShadow: '0 20px 40px rgba(0,0,0,0.6)',
+                    background: isLight ? '#ffffff' : '#0d1529', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b', borderRadius: 14,
+                    overflow: 'hidden', zIndex: 100, boxShadow: isLight ? '0 10px 30px rgba(0,0,0,0.1)' : '0 20px 40px rgba(0,0,0,0.6)',
                   }}>
                     {cityList
                       .filter(c => c.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -662,10 +662,10 @@ const AirQualityHotspotDetection: React.FC = () => {
                             setShowSuggestions(false);
                           }}
                           style={{
-                            padding: '10px 16px', fontSize: 13, color: '#f1f5f9', fontWeight: 600,
-                            cursor: 'pointer', borderBottom: '1px solid #111827', display: 'flex', alignItems: 'center', gap: 8,
+                            padding: '10px 16px', fontSize: 13, color: isLight ? '#0f172a' : '#f1f5f9', fontWeight: 600,
+                            cursor: 'pointer', borderBottom: isLight ? '1px solid #f1f5f9' : '1px solid #111827', display: 'flex', alignItems: 'center', gap: 8,
                           }}
-                          onMouseEnter={(e) => (e.currentTarget.style.background = '#111827')}
+                          onMouseEnter={(e) => (e.currentTarget.style.background = isLight ? '#f1f5f9' : '#111827')}
                           onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
                         >
                           <span style={{ color: '#06b6d4' }}>📍</span> {c}
@@ -678,8 +678,8 @@ const AirQualityHotspotDetection: React.FC = () => {
                           setShowSuggestions(false);
                         }}
                         style={{
-                          padding: '10px 16px', fontSize: 13, color: '#06b6d4', fontWeight: 700,
-                          cursor: 'pointer', background: 'rgba(6,182,212,0.08)', display: 'flex', alignItems: 'center', gap: 8,
+                          padding: '10px 16px', fontSize: 13, color: isLight ? '#0284c7' : '#06b6d4', fontWeight: 700,
+                          cursor: 'pointer', background: isLight ? 'rgba(2,132,199,0.08)' : 'rgba(6,182,212,0.08)', display: 'flex', alignItems: 'center', gap: 8,
                         }}
                       >
                         <span>🔍</span> Search global location "{searchQuery}"
@@ -706,22 +706,22 @@ const AirQualityHotspotDetection: React.FC = () => {
         </div>
 
         {/* ── TOP SECTION: PROMINENT CIGARETTE CARD WITH ANIMATED RISING SMOKE ───── */}
-        <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 16, padding: '24px', marginBottom: 24, boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>
-          <h2 style={{ fontSize: 20, fontWeight: 800, color: '#f1f5f9', marginBottom: 16 }}>
-            Health Impact & Smoke Toxicity in <span style={{ color: '#06b6d4' }}>{selectedCity}</span>
+        <div style={{ background: isLight ? '#ffffff' : '#0d1529', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b', borderRadius: 16, padding: '24px', marginBottom: 24, boxShadow: isLight ? '0 10px 30px rgba(0,0,0,0.05)' : '0 20px 40px rgba(0,0,0,0.5)' }}>
+          <h2 style={{ fontSize: 20, fontWeight: 800, color: isLight ? '#0f172a' : '#f1f5f9', marginBottom: 16 }}>
+            Health Impact & Smoke Toxicity in <span style={{ color: isLight ? '#0284c7' : '#06b6d4' }}>{selectedCity}</span>
           </h2>
 
-          <div style={{ background: '#111827', border: '1px solid #1e293b', borderRadius: 16, padding: '24px', marginBottom: 20 }}>
+          <div style={{ background: isLight ? '#f8fafc' : '#111827', border: isLight ? '1px solid #e2e8f0' : '1px solid #1e293b', borderRadius: 16, padding: '24px', marginBottom: 20 }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 24, alignItems: 'center' }}>
 
               {/* Left - Daily Count */}
               <div>
                 <div style={{ fontSize: 56, fontWeight: 900, color: '#ef4444', lineHeight: 1 }}>{cigarettesDaily}</div>
-                <div style={{ fontSize: 16, fontWeight: 800, color: '#f1f5f9', marginTop: 4 }}>Cigarettes / Day</div>
-                <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.5, marginTop: 8 }}>
+                <div style={{ fontSize: 16, fontWeight: 800, color: isLight ? '#0f172a' : '#f1f5f9', marginTop: 4 }}>Cigarettes / Day</div>
+                <p style={{ fontSize: 13, color: isLight ? '#334155' : '#94a3b8', lineHeight: 1.5, marginTop: 8 }}>
                   Breathing the air in {selectedCity} is equivalent to smoking <span style={{ color: '#ef4444', fontWeight: 700 }}>{cigarettesDaily} cigarettes</span> daily.
                 </p>
-                <div style={{ fontSize: 11, color: '#64748b', marginTop: 8, fontStyle: 'italic' }}>
+                <div style={{ fontSize: 11, color: isLight ? '#64748b' : '#64748b', marginTop: 8, fontStyle: 'italic' }}>
                   Source: Berkeley Earth Air Pollution Model (22 μg/m³ PM2.5 = 1 cigarette)
                 </div>
               </div>
@@ -733,7 +733,7 @@ const AirQualityHotspotDetection: React.FC = () => {
                     const delay = i * 0.25;
                     return (
                       <g key={i}>
-                        <circle cx="100" cy="90" r="4" fill="#94a3b8" opacity="0">
+                        <circle cx="100" cy="90" r="4" fill={isLight ? '#64748b' : '#94a3b8'} opacity="0">
                           <animate attributeName="cy" from="90" to="15" dur="2.2s" begin={`${delay}s`} repeatCount="indefinite" />
                           <animate attributeName="cx" from="100" to={100 + (Math.sin(i) * 35)} dur="2.2s" begin={`${delay}s`} repeatCount="indefinite" />
                           <animate attributeName="opacity" values="0;0.7;0.3;0" dur="2.2s" begin={`${delay}s`} repeatCount="indefinite" />
@@ -757,14 +757,14 @@ const AirQualityHotspotDetection: React.FC = () => {
               {/* Right - Weekly & Monthly Stats */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 <div>
-                  <div style={{ fontSize: 11, color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Weekly Equivalent</div>
+                  <div style={{ fontSize: 11, color: isLight ? '#475569' : '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Weekly Equivalent</div>
                   <div style={{ fontSize: 36, fontWeight: 900, color: '#f97316', lineHeight: 1 }}>{cigarettesWeekly}</div>
-                  <div style={{ fontSize: 12, color: '#94a3b8' }}>Cigarettes / Week</div>
+                  <div style={{ fontSize: 12, color: isLight ? '#334155' : '#94a3b8' }}>Cigarettes / Week</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: 11, color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Monthly Cumulative</div>
+                  <div style={{ fontSize: 11, color: isLight ? '#475569' : '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Monthly Cumulative</div>
                   <div style={{ fontSize: 36, fontWeight: 900, color: '#ef4444', lineHeight: 1 }}>{cigarettesMonthly}</div>
-                  <div style={{ fontSize: 12, color: '#94a3b8' }}>Cigarettes / Month</div>
+                  <div style={{ fontSize: 12, color: isLight ? '#334155' : '#94a3b8' }}>Cigarettes / Month</div>
                 </div>
               </div>
 
@@ -773,30 +773,30 @@ const AirQualityHotspotDetection: React.FC = () => {
 
           {/* Solutions Cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 12 }}>
-            <div style={{ background: '#111827', border: '1px solid #1e293b', borderRadius: 12, padding: '14px', textAlign: 'center' }}>
+            <div style={{ background: isLight ? '#f8fafc' : '#111827', border: isLight ? '1px solid #e2e8f0' : '1px solid #1e293b', borderRadius: 12, padding: '14px', textAlign: 'center' }}>
               <div style={{ fontSize: 24, marginBottom: 4 }}>💨</div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#f1f5f9' }}>Air Purifier</div>
-              <div style={{ fontSize: 11, color: '#06b6d4', fontWeight: 700, marginTop: 2 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: isLight ? '#0f172a' : '#f1f5f9' }}>Air Purifier</div>
+              <div style={{ fontSize: 11, color: isLight ? '#0284c7' : '#06b6d4', fontWeight: 700, marginTop: 2 }}>
                 {avgAQI > 100 ? 'Must Turn On' : 'Turn On'}
               </div>
             </div>
-            <div style={{ background: '#111827', border: '1px solid #1e293b', borderRadius: 12, padding: '14px', textAlign: 'center' }}>
+            <div style={{ background: isLight ? '#f8fafc' : '#111827', border: isLight ? '1px solid #e2e8f0' : '1px solid #1e293b', borderRadius: 12, padding: '14px', textAlign: 'center' }}>
               <div style={{ fontSize: 24, marginBottom: 4 }}>🚗</div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#f1f5f9' }}>Car Filter</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: isLight ? '#0f172a' : '#f1f5f9' }}>Car Filter</div>
               <div style={{ fontSize: 11, color: '#f59e0b', fontWeight: 700, marginTop: 2 }}>
                 {avgAQI > 100 ? 'Must Use' : 'Recommended'}
               </div>
             </div>
-            <div style={{ background: '#111827', border: '1px solid #1e293b', borderRadius: 12, padding: '14px', textAlign: 'center' }}>
+            <div style={{ background: isLight ? '#f8fafc' : '#111827', border: isLight ? '1px solid #e2e8f0' : '1px solid #1e293b', borderRadius: 12, padding: '14px', textAlign: 'center' }}>
               <div style={{ fontSize: 24, marginBottom: 4 }}>😷</div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#f1f5f9' }}>N95 Mask</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: isLight ? '#0f172a' : '#f1f5f9' }}>N95 Mask</div>
               <div style={{ fontSize: 11, color: '#ef4444', fontWeight: 700, marginTop: 2 }}>
                 {avgAQI > 150 ? 'Must Wear' : avgAQI > 100 ? 'Recommended' : 'Optional'}
               </div>
             </div>
-            <div style={{ background: '#111827', border: '1px solid #1e293b', borderRadius: 12, padding: '14px', textAlign: 'center' }}>
+            <div style={{ background: isLight ? '#f8fafc' : '#111827', border: isLight ? '1px solid #e2e8f0' : '1px solid #1e293b', borderRadius: 12, padding: '14px', textAlign: 'center' }}>
               <div style={{ fontSize: 24, marginBottom: 4 }}>🏠</div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#f1f5f9' }}>Stay Indoor</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: isLight ? '#0f172a' : '#f1f5f9' }}>Stay Indoor</div>
               <div style={{ fontSize: 11, color: '#a855f7', fontWeight: 700, marginTop: 2 }}>
                 {avgAQI > 150 ? 'Highly Advised' : 'Optional'}
               </div>
@@ -805,11 +805,11 @@ const AirQualityHotspotDetection: React.FC = () => {
         </div>
 
         {/* ── CITY SUMMARY HERO BANNER ──────────────────────────────────────── */}
-        <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 16, padding: '24px', marginBottom: 24, boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>
+        <div style={{ background: isLight ? '#ffffff' : '#0d1529', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b', borderRadius: 16, padding: '24px', marginBottom: 24, boxShadow: isLight ? '0 10px 30px rgba(0,0,0,0.05)' : '0 20px 40px rgba(0,0,0,0.5)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: 130, height: 130, borderRadius: '50%', border: `4px solid ${getAQIColor(avgAQI)}`, background: '#111827', flexShrink: 0 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: 130, height: 130, borderRadius: '50%', border: `4px solid ${getAQIColor(avgAQI)}`, background: isLight ? '#f8fafc' : '#111827', flexShrink: 0 }}>
               <div style={{ fontSize: 44, fontWeight: 900, color: getAQIColor(avgAQI), lineHeight: 1 }}>{avgAQI}</div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', marginTop: 4 }}>AQI</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: isLight ? '#475569' : '#64748b', marginTop: 4 }}>AQI</div>
             </div>
 
             <div style={{ flex: 1, minWidth: 240 }}>
@@ -817,40 +817,40 @@ const AirQualityHotspotDetection: React.FC = () => {
                 <div style={{ width: 16, height: 4, borderRadius: 2, background: getAQIColor(avgAQI) }} />
                 <h2 style={{ fontSize: 24, fontWeight: 800, color: getAQIColor(avgAQI), margin: 0 }}>{getAQILevel(avgAQI)}</h2>
               </div>
-              <p style={{ fontSize: 13, color: '#94a3b8', margin: '0 0 10px 0', lineHeight: 1.5 }}>
+              <p style={{ fontSize: 13, color: isLight ? '#334155' : '#94a3b8', margin: '0 0 10px 0', lineHeight: 1.5 }}>
                 Air quality in {selectedCity} is rated {getAQILevel(avgAQI).toLowerCase()} with an average AQI of {avgAQI}.
               </p>
-              <div style={{ fontSize: 11, color: '#64748b' }}>
+              <div style={{ fontSize: 11, color: isLight ? '#64748b' : '#64748b' }}>
                 Last updated: {lastUpdate.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })} · {stations.length} Live Monitoring Stations
               </div>
             </div>
 
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-              <div style={{ background: '#111827', border: '1px solid #1e293b', borderRadius: 12, padding: '14px 18px', textAlign: 'center', minWidth: 95 }}>
-                <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>PM2.5 AVG</div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: '#f1f5f9', marginTop: 2 }}>{avgPM25} <span style={{ fontSize: 10, color: '#475569' }}>μg/m³</span></div>
+              <div style={{ background: isLight ? '#f8fafc' : '#111827', border: isLight ? '1px solid #e2e8f0' : '1px solid #1e293b', borderRadius: 12, padding: '14px 18px', textAlign: 'center', minWidth: 95 }}>
+                <div style={{ fontSize: 10, color: isLight ? '#475569' : '#64748b', fontWeight: 600 }}>PM2.5 AVG</div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: isLight ? '#0f172a' : '#f1f5f9', marginTop: 2 }}>{avgPM25} <span style={{ fontSize: 10, color: isLight ? '#64748b' : '#475569' }}>μg/m³</span></div>
               </div>
-              <div style={{ background: '#111827', border: '1px solid #1e293b', borderRadius: 12, padding: '14px 18px', textAlign: 'center', minWidth: 95 }}>
-                <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>PM10 AVG</div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: '#f1f5f9', marginTop: 2 }}>{avgPM10} <span style={{ fontSize: 10, color: '#475569' }}>μg/m³</span></div>
+              <div style={{ background: isLight ? '#f8fafc' : '#111827', border: isLight ? '1px solid #e2e8f0' : '1px solid #1e293b', borderRadius: 12, padding: '14px 18px', textAlign: 'center', minWidth: 95 }}>
+                <div style={{ fontSize: 10, color: isLight ? '#475569' : '#64748b', fontWeight: 600 }}>PM10 AVG</div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: isLight ? '#0f172a' : '#f1f5f9', marginTop: 2 }}>{avgPM10} <span style={{ fontSize: 10, color: isLight ? '#64748b' : '#475569' }}>μg/m³</span></div>
               </div>
-              <div style={{ background: '#111827', border: '1px solid #1e293b', borderRadius: 12, padding: '14px 18px', textAlign: 'center', minWidth: 95 }}>
-                <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>STATIONS</div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: '#06b6d4', marginTop: 2 }}>{stations.length}</div>
+              <div style={{ background: isLight ? '#f8fafc' : '#111827', border: isLight ? '1px solid #e2e8f0' : '1px solid #1e293b', borderRadius: 12, padding: '14px 18px', textAlign: 'center', minWidth: 95 }}>
+                <div style={{ fontSize: 10, color: isLight ? '#475569' : '#64748b', fontWeight: 600 }}>STATIONS</div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: isLight ? '#0284c7' : '#06b6d4', marginTop: 2 }}>{stations.length}</div>
               </div>
             </div>
           </div>
         </div>
 
         {/* ── MAP CONTAINER ────────────────────────────────────────────────── */}
-        <div style={{ background: '#0d1529', border: '1px solid #1e293b', borderRadius: 16, padding: '16px', marginBottom: 24, boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>
+        <div style={{ background: isLight ? '#ffffff' : '#0d1529', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b', borderRadius: 16, padding: '16px', marginBottom: 24, boxShadow: isLight ? '0 10px 30px rgba(0,0,0,0.05)' : '0 20px 40px rgba(0,0,0,0.5)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, padding: '0 4px' }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#f1f5f9' }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: isLight ? '#0f172a' : '#f1f5f9' }}>
               📍 Real-Time GIS Heatmap & Monitoring Station Grid — {selectedCity}
             </div>
           </div>
 
-          <div style={{ height: 460, width: '100%', borderRadius: 12, overflow: 'hidden', border: '1px solid #1e293b', position: 'relative' }}>
+          <div style={{ height: 460, width: '100%', borderRadius: 12, overflow: 'hidden', border: isLight ? '1px solid #cbd5e1' : '1px solid #1e293b', position: 'relative' }}>
             <MapContainer
               center={cityCenter}
               zoom={12}
@@ -859,7 +859,7 @@ const AirQualityHotspotDetection: React.FC = () => {
             >
               <MapController center={cityCenter} zoom={12} />
               <TileLayer
-                url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                url={isLight ? "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" : "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"}
                 attribution='&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://openstreetmap.org">OSM</a>'
               />
               {stations.map(station => (
