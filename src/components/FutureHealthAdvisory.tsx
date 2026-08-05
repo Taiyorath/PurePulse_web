@@ -1,6 +1,7 @@
 // Future Health Advisory - Long-term AQI Health Impact Analysis
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ThemeToggle from './ThemeToggle';
 
 interface HistoricalAQIData {
   date: string;
@@ -242,6 +243,7 @@ const FutureHealthAdvisory: React.FC = () => {
               >
                 {timeRanges.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
               </select>
+              <ThemeToggle />
             </div>
           </div>
         </div>

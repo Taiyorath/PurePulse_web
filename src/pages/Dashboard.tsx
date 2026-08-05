@@ -21,6 +21,7 @@ import {
 } from '../services/LocationService';
 import ProfileDrawer from '../components/ProfileDrawer';
 import LocationModal from '../components/LocationModal';
+import ThemeToggle from '../components/ThemeToggle';
 
 
 interface Profile {
@@ -415,17 +416,16 @@ const Dashboard: React.FC<DashboardProps> = ({ user, profile }) => {
               className="lg:translate-x-0 lg:relative lg:!transform-none"
             >
               {/* Logo */}
-              <div style={{ padding: '20px 16px', borderBottom: '1px solid #1e293b' }}>
+              <div style={{ padding: '18px 16px', borderBottom: '1px solid #1e293b' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{ width: 32, height: 32, background: 'linear-gradient(135deg, #06b6d4, #0891b2)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
-                      <path d="M8 12a4 4 0 0 1 8 0" />
-                    </svg>
-                  </div>
+                  <img
+                    src="/assets/purepulse_logo.png"
+                    alt="PurePulse Logo"
+                    style={{ width: 36, height: 36, borderRadius: 10, objectFit: 'cover', filter: 'drop-shadow(0 0 8px rgba(6,182,212,0.4))' }}
+                  />
                   <div>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: '#f1f5f9', letterSpacing: '-0.01em' }}>PurePulse</div>
-                    <div style={{ fontSize: 9, color: '#06b6d4', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Infothon</div>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: '#f1f5f9', letterSpacing: '-0.01em' }}>PurePulse</div>
+                    <div style={{ fontSize: 9, color: '#06b6d4', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Infothon 2025</div>
                   </div>
                 </div>
               </div>
@@ -569,6 +569,9 @@ const Dashboard: React.FC<DashboardProps> = ({ user, profile }) => {
                 <path d="M8 16H3v5" />
               </svg>
             </button>
+            {/* Theme Toggle Button */}
+            <ThemeToggle />
+
             {/* Profile */}
             <button
               onClick={() => setIsProfileOpen(true)}
@@ -581,6 +584,50 @@ const Dashboard: React.FC<DashboardProps> = ({ user, profile }) => {
 
         {/* Page body */}
         <main style={{ flex: 1, padding: '24px', maxWidth: 1100, width: '100%', margin: '0 auto' }}>
+
+          {/* ── HERO GRAPHIC BANNER ───────────────────────────────── */}
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(13,21,41,0.9), rgba(17,24,39,0.9))',
+            border: '1px solid #1e293b',
+            borderRadius: 20,
+            padding: '24px',
+            marginBottom: 24,
+            boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
+            display: 'grid',
+            gridTemplateColumns: '1fr',
+            gap: 20,
+            overflow: 'hidden',
+            position: 'relative'
+          }} className="md:grid-cols-2">
+            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', zIndex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                <img src="/assets/purepulse_logo.png" alt="PurePulse Logo" style={{ width: 34, height: 34, borderRadius: 8 }} />
+                <span className="badge badge-cyan" style={{ fontSize: 11, padding: '3px 10px' }}>INFOTHON 2025</span>
+              </div>
+              <h1 style={{ fontSize: 28, fontWeight: 900, color: '#f1f5f9', letterSpacing: '-0.02em', lineHeight: 1.2, margin: '0 0 10px 0' }}>
+                Hyperlocal Air Quality <span style={{ background: 'linear-gradient(135deg, #06b6d4, #38bdf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Monitor</span>
+              </h1>
+              <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.6, margin: '0 0 16px 0' }}>
+                IoT + Government API pipeline delivering real-time AQI data with ML-based 24-hr forecasting and AI-driven personalized health alerts.
+              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                {['IoT Sensors', 'Govt APIs', 'Python ML', 'AI Health Alerts'].map((chip) => (
+                  <span key={chip} style={{ fontSize: 11, padding: '4px 10px', background: '#111827', border: '1px solid #1e293b', borderRadius: 8, color: '#cbd5e1', fontWeight: 600 }}>
+                    {chip}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ position: 'relative', height: 200, borderRadius: 14, overflow: 'hidden', border: '1px solid #1e293b' }}>
+              <img
+                src="/assets/hero_air_quality.png"
+                alt="Air Quality Visualization"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(13,21,41,0.6) 0%, transparent 100%)' }} />
+            </div>
+          </div>
 
           {/* ── GREETING & LOCATION METHOD ───────────────────────── */}
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} style={{ marginBottom: 24 }}>

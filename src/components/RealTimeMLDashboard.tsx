@@ -1,6 +1,7 @@
 // Real-Time ML Air Quality Intelligence Dashboard
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ThemeToggle from './ThemeToggle';
 import { MLForecastingEngine } from '../services/MLForecastingEngine';
 import { FirebaseAQIService } from '../services/FirebaseAQIService';
 import { RealTimeMLServices } from '../services/RealTimeMLServices';
@@ -417,6 +418,7 @@ const RealTimeMLDashboard: React.FC = () => {
                   {connectionStatus === 'connected' ? 'Live Stream Active' : 'Disconnected'}
                 </span>
               </div>
+              <ThemeToggle />
             </div>
           </div>
 

@@ -4,6 +4,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import 'leaflet/dist/leaflet.css';
+import ThemeToggle from './ThemeToggle';
 
 const { BaseLayer } = LayersControl;
 
@@ -696,6 +697,7 @@ const AirQualityHotspotDetection: React.FC = () => {
               >
                 {loading ? 'Refreshing...' : '🔄 Refresh Live'}
               </button>
+              <ThemeToggle />
             </div>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ThemeToggle from './ThemeToggle';
 
 const extractVideoId = (url: string): string => {
   const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/);
@@ -362,15 +363,17 @@ const AirQualityNews: React.FC<AirQualityNewsProps> = ({ initialTab = 'all' }) =
                   borderRadius: 10,
                   color: '#06b6d4',
                   fontWeight: 700,
-                  fontSize: 12,
+                  fontSize: 13,
                   cursor: loading ? 'not-allowed' : 'pointer',
+                  opacity: loading ? 0.7 : 1,
                   display: 'flex',
                   alignItems: 'center',
                   gap: 6,
                 }}
               >
-                🔄 Refresh Stream
+                {loading ? 'Fetching...' : '🔄 Refresh RSS Feed'}
               </button>
+              <ThemeToggle />
             </div>
           </div>
         </div>
