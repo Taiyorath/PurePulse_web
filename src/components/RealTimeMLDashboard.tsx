@@ -40,7 +40,7 @@ interface RiskScore {
   recommendation: string;
 }
 
-type CityType = 'Mysuru' | 'Bangalore' | 'Delhi' | 'Mumbai' | 'Chennai' | 'Pune' | 'Hyderabad' | 'Kolkata';
+type CityType = string;
 
 // City station configurations
 const CITY_CONFIGS: Record<CityType, Array<{ name: string; lat: number; lng: number }>> = {
@@ -114,7 +114,10 @@ const RealTimeMLDashboard: React.FC = () => {
   const navigate = useNavigate();
 
   // State management
-  const [selectedCity, setSelectedCity] = useState<CityType>('Mysuru');
+  const [selectedCity, setSelectedCity] = useState<CityType>(() => localStorage.getItem('pp_city') || 'Mysuru');
+  const [searchQuery, setSearchQuery] = useState<string>(() => localStorage.getItem('pp_city') || 'Mysuru');
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [cityList, setCityList] = useState<string[]>(['Mysuru', 'Bangalore', 'Delhi', 'Mumbai', 'Chennai', 'Pune', 'Hyderabad', 'Kolkata']);
   const [currentData, setCurrentData] = useState<RealTimeAQIData[]>([]);
   const [mlPredictions, setMLPredictions] = useState<MLPrediction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -131,7 +134,52 @@ const RealTimeMLDashboard: React.FC = () => {
   const realTimeAPI = useRef(new RealTimeAPIService());
   const intervalRef = useRef<number | null>(null);
 
-  const stations = CITY_CONFIGS[selectedCity] || CITY_CONFIGS.Mysuru;
+  // Listen to global location change events from search bar
+  useEffect(() => {
+    const handleLocationChange = (e: any) => {
+      const city = e.detail?.city || localStorage.getItem('pp_city') || 'Mysuru';
+      setSelectedCity(city);
+      setSearchQuery(city);
+      setCityList(prev => prev.includes(city) ? prev : [city, ...prev]);
+    };
+
+    window.addEventListener('pp_location_changed', handleLocationChange);
+    return () => window.removeEventListener('pp_location_changed', handleLocationChange);
+  }, []);
+
+  const stations = useMemo(() => {
+    if (CITY_CONFIGS[selectedCity]) return CITY_CONFIGS[selectedCity];
+    const lat = parseFloat(localStorage.getItem('pp_lat') || '12.2958');
+    const lng = parseFloat(localStorage.getItem('pp_lng') || '76.6450');
+    return [
+      { name: `${selectedCity} Central Station`, lat, lng },
+      { name: `${selectedCity} North Grid`, lat: lat + 0.02, lng: lng + 0.01 },
+    ];
+  }, [selectedCity]);
+
+  const handleCitySelect = (cityName: string) => {
+    setSelectedCity(cityName);
+    setSearchQuery(cityName);
+    setCityList(prev => prev.includes(cityName) ? prev : [cityName, ...prev]);
+
+    localStorage.setItem('pp_city', cityName);
+
+    // Geocode to get lat/lon if needed
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cityName)}&limit=1`, {
+      headers: { 'Accept-Language': 'en-US,en' }
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          const lat = parseFloat(data[0].lat);
+          const lng = parseFloat(data[0].lon);
+          localStorage.setItem('pp_lat', lat.toString());
+          localStorage.setItem('pp_lng', lng.toString());
+          window.dispatchEvent(new CustomEvent('pp_location_changed', { detail: { city: cityName, lat, lon: lng } }));
+        }
+      })
+      .catch(() => {});
+  };
 
   const getCurrentAccuracy = () => {
     switch (predictionHorizon) {
@@ -374,23 +422,94 @@ const RealTimeMLDashboard: React.FC = () => {
 
           {/* Controls Bar */}
           <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 14, paddingTop: 16, borderTop: '1px solid #1e293b' }}>
-            {/* City Selector */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 600 }}>📍 City:</span>
-              <select
-                value={selectedCity}
-                onChange={(e) => setSelectedCity(e.target.value as CityType)}
-                style={{ background: '#111827', border: '1px solid #1e293b', borderRadius: 8, padding: '6px 12px', color: '#f1f5f9', fontSize: 13, fontWeight: 600, outline: 'none', cursor: 'pointer' }}
-              >
-                <option value="Mysuru">Mysuru</option>
-                <option value="Bangalore">Bangalore</option>
-                <option value="Delhi">Delhi</option>
-                <option value="Mumbai">Mumbai</option>
-                <option value="Chennai">Chennai</option>
-                <option value="Pune">Pune</option>
-                <option value="Hyderabad">Hyderabad</option>
-                <option value="Kolkata">Kolkata</option>
-              </select>
+            {/* Real-Time Location Search Input (Replaces Dropdown) */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, position: 'relative', minWidth: 260, flex: 1, maxWidth: 360 }}>
+              <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 600, flexShrink: 0 }}>📍 City:</span>
+              <div style={{ position: 'relative', width: '100%' }}>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    if (e.target.value.length >= 2) {
+                      setShowSuggestions(true);
+                    } else {
+                      setShowSuggestions(false);
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && searchQuery.trim()) {
+                      handleCitySelect(searchQuery.trim());
+                      setShowSuggestions(false);
+                    }
+                  }}
+                  placeholder="Search any city/location..."
+                  style={{
+                    width: '100%',
+                    background: '#111827',
+                    border: '1px solid #1e293b',
+                    borderRadius: 20,
+                    padding: '7px 14px 7px 34px',
+                    color: '#f1f5f9',
+                    fontSize: 13,
+                    fontWeight: 600,
+                    outline: 'none',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                    transition: 'all 0.2s',
+                  }}
+                />
+                <svg
+                  width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2.5" strokeLinecap="round"
+                  style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
+                >
+                  <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+
+                {/* Suggestions Dropdown */}
+                {showSuggestions && (
+                  <div style={{
+                    position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 6,
+                    background: '#0d1529', border: '1px solid #1e293b', borderRadius: 12,
+                    overflow: 'hidden', zIndex: 100, boxShadow: '0 20px 40px rgba(0,0,0,0.6)',
+                  }}>
+                    {cityList
+                      .filter(c => c.toLowerCase().includes(searchQuery.toLowerCase()))
+                      .slice(0, 6)
+                      .map((c) => (
+                        <div
+                          key={c}
+                          onClick={() => {
+                            setSearchQuery(c);
+                            handleCitySelect(c);
+                            setShowSuggestions(false);
+                          }}
+                          style={{
+                            padding: '9px 14px', fontSize: 13, color: '#f1f5f9', fontWeight: 600,
+                            cursor: 'pointer', borderBottom: '1px solid #111827', display: 'flex', alignItems: 'center', gap: 8,
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.background = '#111827')}
+                          onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                        >
+                          <span style={{ color: '#06b6d4' }}>📍</span> {c}
+                        </div>
+                      ))}
+                    {searchQuery.trim() && (
+                      <div
+                        onClick={() => {
+                          handleCitySelect(searchQuery.trim());
+                          setShowSuggestions(false);
+                        }}
+                        style={{
+                          padding: '9px 14px', fontSize: 13, color: '#06b6d4', fontWeight: 700,
+                          cursor: 'pointer', background: 'rgba(6,182,212,0.08)', display: 'flex', alignItems: 'center', gap: 8,
+                        }}
+                      >
+                        <span>🔍</span> Search global location "{searchQuery}"
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Refresh Rate */}
