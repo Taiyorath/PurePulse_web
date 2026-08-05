@@ -543,23 +543,23 @@ const RealTimeMLDashboard: React.FC = () => {
                 </div>
 
                 {/* Forecast Bar Chart Strip */}
-                <div style={{ marginTop: 12 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <div style={{ marginTop: 14 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                     <span style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600 }}>🤖 ML Forecast (+{predictionHorizon}h)</span>
                     <span style={{ fontSize: 10, color: '#06b6d4', fontWeight: 700 }}>87% Accuracy</span>
                   </div>
 
                   {forecastList && forecastList.length > 0 ? (
-                    <div style={{ display: 'flex', gap: 4, alignItems: 'flex-end', height: 54, background: '#111827', padding: '8px 10px', borderRadius: 8, border: '1px solid #1e293b' }}>
+                    <div style={{ display: 'flex', gap: 6, alignItems: 'flex-end', minHeight: 70, background: '#111827', padding: '10px 12px', borderRadius: 10, border: '1px solid #1e293b' }}>
                       {forecastList.slice(0, 6).map((val, idx) => {
                         const maxVal = Math.max(...forecastList.slice(0, 6), 1);
-                        const heightPct = Math.max((val / maxVal) * 36, 6);
+                        const barHeight = Math.max(12, Math.round((val / maxVal) * 32));
                         const color = val <= 50 ? '#22c55e' : val <= 100 ? '#eab308' : '#ef4444';
                         return (
-                          <div key={idx} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-                            <span style={{ fontSize: 9, color, fontWeight: 700 }}>{val}</span>
-                            <div style={{ width: '100%', height: heightPct, background: color, borderRadius: 2, opacity: 0.85 }} />
-                            <span style={{ fontSize: 8, color: '#475569' }}>+{idx + 1}h</span>
+                          <div key={idx} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', height: '100%' }}>
+                            <span style={{ fontSize: 10, color, fontWeight: 800, marginBottom: 2 }}>{val}</span>
+                            <div style={{ width: '100%', height: barHeight, background: color, borderRadius: 4, opacity: 0.85 }} />
+                            <span style={{ fontSize: 9, color: '#64748b', marginTop: 4, fontWeight: 600 }}>+{idx + 1}h</span>
                           </div>
                         );
                       })}
